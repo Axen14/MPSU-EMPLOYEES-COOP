@@ -1,6 +1,7 @@
 import React from 'react';
 import './Loans.css';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
 const Loans = () => {
   const handleSearch = (event) => {
@@ -47,7 +48,7 @@ const Loans = () => {
                         onChange={handleSearch}
                       />
                       <button type="submit" className="search-button">
-                        <FontAwesomeIcon icon={faSearch} />
+                        <FontAwesomeIcon icon={faSearch} />  {/* Use the FontAwesomeIcon component */}
                       </button>
                     </form>
 
