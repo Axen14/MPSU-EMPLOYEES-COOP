@@ -1,9 +1,13 @@
+<<<<<<< HEAD
 
+=======
+import React, { useState } from 'react';  // Import useState from React
+>>>>>>> 3ceaaede8c52f9ee3873bb22ba2091b062530787
 import './Payments.css';
 import React, { useState } from 'react';
 
 const Payments = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');  // Define the useState hook
 
   const data = [
     { date: '2024-09-03', accountNumber: '12345', orNumber: '67890', amount: '1000.00' },
