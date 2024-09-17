@@ -1,5 +1,6 @@
-import React from 'react';
+
 import './Payments.css';
+import React, { useState } from 'react';
 
 const Payments = () => {
   const [searchQuery, setSearchQuery] = useState('');

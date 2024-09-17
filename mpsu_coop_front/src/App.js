@@ -1,10 +1,11 @@
 import React from 'react';
-import Sidebar from './admin/Sidebar/Sidebar';
+import AdminDashboard from './admin/AdminDashboard/AdminDashboard';
 
 function App() {
   return (
-    <Sidebar/>
-
+    <div className="App">
+      <AdminDashboard/>
+    </div>
   );
 }
 
