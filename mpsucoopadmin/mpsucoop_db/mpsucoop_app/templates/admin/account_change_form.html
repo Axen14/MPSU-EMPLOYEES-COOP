@@ -1,0 +1,25 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+  <h1>Change Account Details</h1>
+
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="button">Save changes</button>
+  </form>
+
+  <br>
+  
+  {% if change %}
+    <a href="?deposit" class="button">Deposit Funds</a>
+    <a href="?withdraw" class="button">Withdraw Funds</a>
+  {% endif %}
+
+   <!-- Debugbugbug -->
+  {% if debug %}
+    <h2>Debug Information</h2>
+    <pre>{{ debug }}</pre>
+  {% endif %}
+
+{% endblock %}
