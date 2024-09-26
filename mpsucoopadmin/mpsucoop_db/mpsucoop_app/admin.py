@@ -1,133 +1,127 @@
 from django.contrib import admin
-from django import forms
-from django.http import HttpResponseRedirect
-from .models import Member, Loan, Payment, Account, Ledger, RepaymentSchedule
+from django.contrib import messages
 from django.shortcuts import render
+from django.http import HttpResponseRedirect
+from .models import Member, Account, Loan
+from .forms import DepositWithdrawForm
+from django.core.exceptions import ValidationError
+from django.contrib import admin
+from .models import Payment, PaymentSchedule, Ledger
 
-
-class DepositForm(forms.ModelForm):
-    deposit_amount = forms.DecimalField(max_digits=15, decimal_places=2)
-
-    class Meta:
-        model = Account
-        fields = ['deposit_amount']
-
-    def save(self, commit=True):
-        account = super().save(commit=False)
-        deposit_amount = self.cleaned_data['deposit_amount']
-        account.deposit(deposit_amount)
-        if commit:
-            account.save()
-        return account
-
-# Withdraw form
-class WithdrawForm(forms.ModelForm):
-    withdraw_amount = forms.DecimalField(max_digits=15, decimal_places=2)
-
-    class Meta:
-        model = Account
-        fields = ['withdraw_amount']
-
-    def save(self, commit=True):
-        account = super().save(commit=False)
-        withdraw_amount = self.cleaned_data['withdraw_amount']
-        account.withdraw(withdraw_amount)
-        if commit:
-            account.save()
-        return account
-
-
+class MemberAdmin(admin.ModelAdmin):
+    search_fields = ('first_name', 'last_name', 'email')
+    list_display = ('memId', 'first_name', 'middle_name', 'last_name', 'email', 'phone_number', 'address', 'user')
 
 class AccountAdmin(admin.ModelAdmin):
-    change_form_template = 'admin/account_change_form.html'
-    list_display = ('account_number', 'account_holder', 'account_type', 'balance', 'status', 'created_at', 'updated_at')
-    readonly_fields = ('balance', 'created_at', 'updated_at')
+    list_display = ('account_number', 'account_holder', 'shareCapital', 'status', 'created_at', 'updated_at')
+    search_fields = ('account_number', 'account_holder__first_name', 'account_holder__last_name')
 
-    def get_form(self, request, obj=None, **kwargs):
-        if obj:
-            if 'deposit' in request.GET:
-                return DepositForm
-            elif 'withdraw' in request.GET:
-                return WithdrawForm
-        return super().get_form(request, obj, **kwargs)
+    actions = ['deposit', 'withdraw']
 
-    def change_view(self, request, object_id, form_url='', extra_context=None):
-        obj = self.get_object(request, object_id)
+    def deposit(self, request, queryset):
+        form = DepositWithdrawForm(request.POST or None)  
 
-        if obj is None:
-            return super().change_view(request, object_id, form_url, extra_context)
+        if request.method == 'POST' and form.is_valid():
+            amount = form.cleaned_data['amount']  
+            for account in queryset:
+                try:
+                    account.deposit(amount)  
+                    self.message_user(request, f"Successfully deposited {amount} to account {account.account_number}.", messages.SUCCESS)
+                except ValueError as e:
+                    self.message_user(request, str(e), messages.ERROR)
 
-        form_class = self.get_form(request, obj)
-        form = form_class(request.POST or None, instance=obj)
+            return HttpResponseRedirect(request.get_full_path())  
+        context = {
+            'form': form,
+            'action_checkbox_name': admin.helpers.ACTION_CHECKBOX_NAME,
+        }
+        return render(request, 'admin/deposit_withdraw_form.html', context)
 
-        if request.method == 'POST':
-            if form.is_valid():
-                form.save()
-                self.message_user(request, "Transaction completed successfully.")
-                return HttpResponseRedirect(request.get_full_path())
+    deposit.short_description = "Deposit to selected accounts"
+
+    def withdraw(self, request, queryset):
+        form = DepositWithdrawForm(request.POST or None)  
+        if request.method == 'POST' and form.is_valid():
+            amount = form.cleaned_data['amount']  
+            for account in queryset:
+                try:
+                    account.withdraw(amount)  
+                    self.message_user(request, f"Successfully withdrew {amount} from account {account.account_number}.", messages.SUCCESS)
+                except ValueError as e:
+                    self.message_user(request, str(e), messages.ERROR)
+
+            return HttpResponseRedirect(request.get_full_path())  
 
         context = {
             'form': form,
-            'opts': self.model._meta,
-            'object_id': object_id,
-            'change': True,
-            'has_view_permission': self.has_view_permission(request, obj),
-            'has_change_permission': self.has_change_permission(request, obj),
-            'has_add_permission': self.has_add_permission(request),
-            'has_delete_permission': self.has_delete_permission(request, obj),
-            'is_popup': '_popup' in request.GET,
-            'show_save_and_add_another': False,
-            'show_save_and_continue': False,
-            'show_save_and_edit': False,
-            **(extra_context or {}),
+            'action_checkbox_name': admin.helpers.ACTION_CHECKBOX_NAME,
         }
+        return render(request, 'admin/deposit_withdraw_form.html', context)
 
-        # Debugging context
-        context['debug'] = {
-            'form_class': str(form_class),
-            'request.GET': request.GET,
-            'form_errors': form.errors
-        }
-        
-        return self.render_change_form(request, context, add=False)
-
-
-# Ledger Admin
-class LedgerAdmin(admin.ModelAdmin):
-    list_display = ('transaction_id', 'account', 'transaction_date', 'transaction_type', 'amount', 'balance_after_transaction')
-    readonly_fields = ('transaction_id', 'transaction_date', 'transaction_type', 'amount', 'balance_after_transaction')
-    search_fields = ('transaction_id', 'account__account_number', 'transaction_type')
-
-# Other Admin classes
-class MemberAdmin(admin.ModelAdmin):
-    list_display = ('member_id', 'first_name', 'last_name', 'email', 'phone_number', 'address')
+    withdraw.short_description = "Withdraw from selected accounts"
 
 class LoanAdmin(admin.ModelAdmin):
-    list_display = ('loan_number', 'member', 'loan_amount', 'interest_rate', 'loan_date', 'due_date', 'status')
-    list_filter = ('status', 'loan_date')
+    list_display = ('control_number','account', 'loan_amount', 'loan_type', 'loan_period', 'loan_period_unit', 'interest_rate', 'status', 'due_date')
+    search_fields = ('control_number', 'account__account_number', 'member__first_name', 'member__last_name')
+
+    
+    list_filter = ('loan_type', 'status', 'loan_period_unit')
+
+    fieldsets = (
+        (None, {
+            'fields': ('control_number', 'account', 'loan_amount', 'loan_type', 'loan_period', 'loan_period_unit', 'interest_rate', 'service_fee', 'penalty_rate')
+        }),
+        ('Status and Purpose', {
+            'fields': ('status', 'purpose', 'others_purpose', 'nameOfSpouse')
+        }),
+    )
+
+    def save_model(self, request, obj, form, change):
+        if obj.loan_period <= 0:
+            raise ValueError("Loan term must be greater than 0")
+        if obj.loan_type == 'Regular' and obj.loan_period > 48:
+            raise ValidationError("Regular loans cannot exceed 48 months (4 years).")
+        elif obj.loan_type == 'Emergency' and obj.loan_period > 6:
+            raise ValidationError("Emergency loans cannot exceed 6 months.")
+        super().save_model(request, obj, form, change)
+
+
+class PaymentScheduleAdmin(admin.ModelAdmin):
+    list_display = ('loan', 'due_date', 'installment_amount', 'is_paid')
+    list_filter = ('loan', 'is_paid')  
+    search_fields = ('loan__control_number',)  
+
 
 class PaymentAdmin(admin.ModelAdmin):
     list_display = ('OR', 'loan', 'payment_amount', 'payment_date', 'method', 'service_fee', 'penalty')
-    readonly_fields = ('service_fee', 'penalty') 
-    search_fields = ('OR', 'loan__loan_number')
-    list_filter = ('method', 'payment_date')
+    list_filter = ('loan', 'method')  
+    search_fields = ('loan__control_number', 'OR')  
 
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        if obj:
-            
-            form.base_fields['service_fee'].widget.attrs['readonly'] = True
-            form.base_fields['penalty'].widget.attrs['readonly'] = True
-        return form
-class RepaymentScheduleAdmin(admin.ModelAdmin):
-    list_display = ('loan', 'due_date', 'amount_due', 'amount_paid', 'balance_due')
-    readonly_fields = ('balance_due',)
-    search_fields = ('loan__loan_number',)
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
 
 
-admin.site.register(Member, MemberAdmin)
-admin.site.register(Loan, LoanAdmin)
+class LedgerAdmin(admin.ModelAdmin):
+    list_display = ('member', 'loan', 'transaction_type', 'amount', 'transaction_date', 'details')
+    search_fields = ('member__first_name', 'member__last_name', 'loan__loan_number', 'transaction_type')
+    list_filter = ('transaction_type', 'transaction_date')
+    date_hierarchy = 'transaction_date'
+    readonly_fields = ('member', 'loan', 'transaction_type', 'amount', 'transaction_date', 'details')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+    
+
+admin.site.register(PaymentSchedule, PaymentScheduleAdmin)
 admin.site.register(Payment, PaymentAdmin)
-admin.site.register(RepaymentSchedule, RepaymentScheduleAdmin)
+admin.site.register(Loan, LoanAdmin)
 admin.site.register(Account, AccountAdmin)
+admin.site.register(Member, MemberAdmin)
 admin.site.register(Ledger, LedgerAdmin)

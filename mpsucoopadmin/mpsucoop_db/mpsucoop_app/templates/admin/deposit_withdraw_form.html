@@ -1,0 +1,17 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+
+<form method="POST">
+    {% csrf_token %}
+    <table>
+        {{ form.as_table }}
+    </table>
+    <input type="submit" name="apply" value="Apply">
+</form>
+
+<p>
+    <a href="{% url 'admin:index' %}">Back to the admin page</a>
+</p>
+{% endblock %}
