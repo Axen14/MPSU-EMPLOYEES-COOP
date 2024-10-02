@@ -103,16 +103,25 @@ class Loan(models.Model):
     
     def calculate_take_home_pay(self):
         """Calculates take home pay as loan_amount - (service_fee + notarial_fee)."""
-        return self.loan_amount - (self.service_fee + self.notarial_fee)
+        return self.loan_amount - (self.service_fee + Decimal(self.notarial_fee))
 
     # calculate due date based on loan_period and loan_period_unit
     def calculate_due_date(self):
+        if self.loan_date is None:
+            raise ValueError("Loan date must be set before calculating due date.")
+        
         if self.loan_period_unit == 'Months':
-            return self.loan_date + timedelta(days=self.loan_period * 30)  #  for months
+            return self.loan_date + timedelta(days=self.loan_period * 30)  # For months
         elif self.loan_period_unit == 'Years':
-            return self.loan_date + timedelta(days=self.loan_period * 365)  #  for years
+            return self.loan_date + timedelta(days=self.loan_period * 365)  # For years
+        else:
+            raise ValueError("Invalid loan period unit. Must be 'Months' or 'Years'.")
 
     def save(self, *args, **kwargs):
+        # Set loan_date to current date if it's not set
+        if not self.loan_date:
+            self.loan_date = timezone.now()  # Automatically sets the current date
+        # Calculate due_date only if it's not already set
         if not self.due_date:
             self.due_date = self.calculate_due_date()
 
@@ -153,12 +162,10 @@ class Payment(models.Model):
     loan = models.ForeignKey(Loan, on_delete=models.CASCADE)
     payment_amount = models.DecimalField(max_digits=15, decimal_places=2)
     payment_date = models.DateField(auto_now_add=True)
-    
     method = models.CharField(max_length=50, choices=[('Cash', 'Cash'), ('Bank Transfer', 'Bank Transfer')], default='Unknown')
-    service_fee = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal('0.00'))
-    penalty = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal('0.00'))
     
-    notarial_fee = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('100.00'))  
+    penalty = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal('0.00'))
+     
     admin_cost = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('10.00'))  
     cisp = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal('0.00'))  
     payment_schedule = models.ForeignKey(PaymentSchedule, on_delete=models.CASCADE, related_name='payments')

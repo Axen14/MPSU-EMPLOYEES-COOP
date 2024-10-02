@@ -3,7 +3,6 @@ from django.contrib import messages
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from .models import Member, Account, Loan
-from .forms import DepositWithdrawForm
 from django.core.exceptions import ValidationError
 from django.contrib import admin
 from .models import Payment, PaymentSchedule, Ledger
@@ -15,48 +14,36 @@ class MemberAdmin(admin.ModelAdmin):
 class AccountAdmin(admin.ModelAdmin):
     list_display = ('account_number', 'account_holder', 'shareCapital', 'status', 'created_at', 'updated_at')
     search_fields = ('account_number', 'account_holder__first_name', 'account_holder__last_name')
-
+    
     actions = ['deposit', 'withdraw']
 
     def deposit(self, request, queryset):
-        form = DepositWithdrawForm(request.POST or None)  
-
-        if request.method == 'POST' and form.is_valid():
-            amount = form.cleaned_data['amount']  
+        # Assuming the React frontend sends a POST request with an amount
+        if request.method == 'POST':
+            amount = request.POST.get('amount')  # React will handle sending this data
             for account in queryset:
                 try:
-                    account.deposit(amount)  
+                    account.deposit(Decimal(amount))
                     self.message_user(request, f"Successfully deposited {amount} to account {account.account_number}.", messages.SUCCESS)
                 except ValueError as e:
                     self.message_user(request, str(e), messages.ERROR)
-
-            return HttpResponseRedirect(request.get_full_path())  
-        context = {
-            'form': form,
-            'action_checkbox_name': admin.helpers.ACTION_CHECKBOX_NAME,
-        }
-        return render(request, 'admin/deposit_withdraw_form.html', context)
+            return HttpResponseRedirect(request.get_full_path())
+        return HttpResponseRedirect(request.get_full_path())  # Redirect without form
 
     deposit.short_description = "Deposit to selected accounts"
 
     def withdraw(self, request, queryset):
-        form = DepositWithdrawForm(request.POST or None)  
-        if request.method == 'POST' and form.is_valid():
-            amount = form.cleaned_data['amount']  
+        # Similar logic to the deposit method
+        if request.method == 'POST':
+            amount = request.POST.get('amount')  # React will handle sending this data
             for account in queryset:
                 try:
-                    account.withdraw(amount)  
+                    account.withdraw(Decimal(amount))
                     self.message_user(request, f"Successfully withdrew {amount} from account {account.account_number}.", messages.SUCCESS)
                 except ValueError as e:
                     self.message_user(request, str(e), messages.ERROR)
-
-            return HttpResponseRedirect(request.get_full_path())  
-
-        context = {
-            'form': form,
-            'action_checkbox_name': admin.helpers.ACTION_CHECKBOX_NAME,
-        }
-        return render(request, 'admin/deposit_withdraw_form.html', context)
+            return HttpResponseRedirect(request.get_full_path())
+        return HttpResponseRedirect(request.get_full_path())  # Redirect without form
 
     withdraw.short_description = "Withdraw from selected accounts"
 
@@ -93,7 +80,7 @@ class PaymentScheduleAdmin(admin.ModelAdmin):
 
 
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ('OR', 'loan', 'payment_amount', 'payment_date', 'method', 'service_fee', 'penalty')
+    list_display = ('OR', 'loan', 'payment_amount', 'payment_date', 'method', 'penalty')
     list_filter = ('loan', 'method')  
     search_fields = ('loan__control_number', 'OR')  
 

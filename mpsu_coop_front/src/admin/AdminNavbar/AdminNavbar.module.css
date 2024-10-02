@@ -1,68 +1,68 @@
-.adminNavbar {
-    border-radius: 10px;
-    background-color: #033710;
+  .adminNavbar {
     display: flex;
     flex-direction: column;
-    align-items: start;
-    color: rgba(0, 0, 0, 0.7);
-    text-align: center;
-    width: 11%;
-    max-width: 100%;
-    padding: 13px 0 50px;
-    font: 500 15px Lato, sans-serif;
+    align-items: center;
+    background-color: #033710;
+    color: white;
+    border-radius: 15px;
+    box-shadow: inset 0px 0px 20px 0px rgba(8, 29, 18, 0.71);
+    
   }
   
   .logoSystemName {
-    align-self: stretch;
-    width: 169px;
-    min-height: 46px;
-    color: #ffb803;
-    font-weight: 800;
-    padding: 20px 2px 7px;
-  }
-  
-  @media (max-width: 991px) {
-    .logoSystemName {
-      margin-left: 7px;
-    }
+    margin-top: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: goldenrod;
   }
   
   .logoImage {
-    aspect-ratio: 100;
-    object-fit: contain;
-    object-position: center;
-    width: 100%;
-    align-self: stretch;
-    margin-top: 18px;
+    width: 100px;
+    margin-bottom: 20px;
+  }
+  
+  .navList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .navItem {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+  
+  .navItem:hover {
+    background-color: #34495e;
+  }
+  
+  .navIcon {
+    margin-right: 10px;
+  }
+  
+  .navLabel {
+    font-size: 18px;
   }
   
   .logOut {
     display: flex;
-    min-height: 32px;
     align-items: center;
-    gap: 10px;
-    color: #f4eeee;
-    justify-content: center;
-    margin: 149px 0 0 18px;
+    margin-top: auto;
+    padding: 10px 20px;
+    cursor: pointer;
   }
   
-  @media (max-width: 991px) {
-    .logOut {
-      margin: 40px 0 0 10px;
-    }
+  .logOut:hover {
+    color: #e74c3c;
   }
   
   .logOutIcon {
-    aspect-ratio: 1.12;
-    object-fit: contain;
-    object-position: center;
-    width: 36px;
-    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
-    align-self: stretch;
-    margin: auto 0;
+    margin-right: 10px;
   }
   
   .logOutText {
-    align-self: stretch;
-    margin: auto 0;
+    font-size: 18px;
   }
+    

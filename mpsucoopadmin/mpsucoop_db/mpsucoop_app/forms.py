@@ -35,5 +35,3 @@ class MemberSignUpForm(forms.Form):
         
         return cleaned_data
     
-class DepositWithdrawForm(forms.Form):
-    amount = forms.DecimalField(max_digits=10, decimal_places=2, help_text="Enter the amount to deposit or withdraw.")
