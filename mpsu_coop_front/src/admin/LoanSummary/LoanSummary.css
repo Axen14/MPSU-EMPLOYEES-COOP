@@ -1,46 +1,45 @@
-.loanSummary {
-    display:flex;
-    align-items: center;
-    gap:200px;
-    color: #000;
-    text-align: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    width: 100%;
-    padding: 0px;
-    font: 600 16px Inter, sans-serif;
-    border: 2px solid red;
-    background-color: #ffffff4f;
-  }
+.loanSummary { 
+  display: flex;
+  align-items: center;
+  gap: 50px;
+  color: #000;
+  text-align: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+  padding: 10px;
+  font: 600 16px Inter, sans-serif;
+  border: 2px solid red; 
+  background-color: #8c8c8c;
+}
 
-  @media (max-width: 991px) {
-    .loanSummary {
-      max-width: 100%;
-    }
+@media (max-width: 991px) {
+  .loanSummary {
+    max-width: 100%;
+    flex-direction: column;
   }
-  
-  .loanCard {
-    justify-content: start;
-    margin: 10px;
-    width: 200px;
-  }
-  
-  .loanType {
-    align-self: stretch;
-    flex: 1;
-    border-radius: 10px 10px 0 0;
-    background-color: #7e0909;
-    width: 100%;
-    padding: 10px;
-    border: 1px solid rgba(63, 21, 167, 0);
-  }
-  
-  .loanAmount {
-    align-self: stretch;
-    flex: 1;
-    border-radius: 0 0 10px 10px;
-    background-color: #fff;
-    width: 100%;
-    padding: 10px;
-    border: 1px solid rgba(0, 0, 0, 0);
-  }
+}
+
+.loanCard {
+  display: inline-block;
+  background-color: rgb(0, 110, 255);
+  border-radius: 10px; 
+  width: 200px;
+}
+
+.loanType {
+  align-self: stretch;
+  border-radius: 10px 10px 0 0;
+  background-color: #ff0000;
+  width: 100%;
+  padding: 10px;
+}
+
+.loanAmount {
+  align-self: stretch;
+  border-radius: 0 0 10px 10px;
+  background-color: #000000; 
+  color: #ffffff;
+  width: 100%;
+  padding: 10px;
+}

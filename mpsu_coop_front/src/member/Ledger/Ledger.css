@@ -1,62 +1,82 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #000000;
+  margin: 0;
+  padding: 20px;
+}
 
-.content-wrapper {
-    margin-top: 0px;
-    padding: 20px;
-    background-color: black;
-  }
-  
-  .ledger-table {
-    background-color: gray;
-    padding: 20px;
-    border-radius: 8px;
-    border: 1px solid black;
-    height: 400px;
-  }
-  
-  .ledger-table h2 {
-    font-size: 22px;
-    color: black;
-    margin-bottom: 20px;
-    text-align: center;
-  }
-  
-  .ledger-table table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-  }
-  
-  .ledger-table th, .ledger-table td {
-    border: 1px solid black;
+.ledger-wrapper {
+  max-width: 100%;
+  margin-top: 50px;
+  padding: 20px;
+  background-color: #9b9b9b;
+  border-radius: 8px;
+}
+
+.ledger-table {
+  margin-top: 20px;
+}
+
+h2 {
+  text-align: center;
+  color: #000000;
+  margin-bottom: 20px;
+}
+
+label {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+th, td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+th {
+  background-color: #f2f2f2;
+  color: #333;
+}
+
+tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.print-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin: 20px 0;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.print-btn:hover {
+  background-color: #218838;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .ledger-wrapper {
     padding: 10px;
-    text-align: center;
-    color: black;
   }
-  
-  .ledger-table th {
-    background-color: gray;
-    font-weight: bold;
-  }
-  
+
   .print-btn {
-    background-color: #4CAF50;
-    color: black;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 5px;
-    margin-top: 20px;
-    transition: background-color 0.3s ease;
+    font-size: 14px;
   }
-  
-  .print-btn:hover {
-    background-color: #33FF00;
+
+  th, td {
+    padding: 8px;
   }
-  
-  @media print {
-    .print-btn {
-      display: none;
-    }
-  }
-  
+}

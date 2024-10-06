@@ -3,9 +3,9 @@ import './Account.css';
 
 const Account = () => {
   return (
-    <div className="content-wrapper">
-      <section className="content-header">
-        <div className="container-fluid">
+    <div className="account-wrapper">
+      <section className="account-header">
+        <div className="account-fluid">
           <div className="row mb-2">
             <div className="col-sm-6">
               <h1>Account</h1>
@@ -13,8 +13,8 @@ const Account = () => {
           </div>
         </div>
       </section>
-      <section className="content">
-        <div className="container-fluid">
+      <section className="Content">
+        <div className="Content-fluid">
           <div className="row">
             <div className="col-12">
               <div className="card">

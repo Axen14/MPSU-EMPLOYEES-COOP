@@ -3,7 +3,7 @@ import AdminNavbar from '../AdminNavbar/AdminNavbar';
 import DashboardHeader from '../DashboardHeader/DashboardHeader';
 import LoanSummary from '../LoanSummary/LoanSummary';
 import Members from '../Members/Members';
-import Accounts from '../Accounts/Accounts';
+import Accounts from '../Accounts/Accounts'; // Ensure this path is correct
 import Loans from '../Loans/Loans';
 import styles from './AdminDashboard.module.css';
 
@@ -36,10 +36,7 @@ function AdminDashboard() {
       <AdminNavbar onLinkClick={setActiveComponent} />
       
       <main className={styles.adminDashboardMain}>
-        
         <DashboardHeader />
-        
-        
         {renderComponent()}
       </main>
     </div>

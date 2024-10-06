@@ -8,7 +8,7 @@ function LoanSummary() {
     <div className="loanSummary">
       
         {loanTypes.map((type, index) => (
-          <div key={index} className={styles.loanCard} style={{ display: 'inline-block', backgroundColor:'white', borderRadius: '10px'}}>
+          <div key={index} className={styles.loanCard} style={{ display: 'inline-block', backgroundColor:'rgb(0, 110, 255', borderRadius: '10px'}}>
             <h3 className={styles.loanType}>{type}</h3>
             <p className={styles.loanAmount}>500,000</p>
           </div>

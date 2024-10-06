@@ -3,19 +3,15 @@ import './Home.css';
 
 const Home = () => {
   return (
-    <div className="content-wrapper">
-      <div className="content-header">
-        <div className="container-fluid">
-          <div className="row mb-2">
-            <div className="col-sm-6">
-              <h1 className="m-0">Welcome!!!</h1>
-            </div>
-          </div>
+    <div className="home-wrapper">
+      <div className="home-header">
+        <div className="home-fluid">
+          <h1 className="m-0">Welcome!!!</h1>
         </div>
       </div>
-      <section className="content">
-        <div className="container-fluid">
-          <div className="row">
+      <section className="member">
+        <div className="member-fluid">
+          <div className="row card-container">
             {/* Member Info Section */}
             <div className="col-md-6">
               <div className="card member-info">
@@ -50,9 +46,9 @@ const Home = () => {
                 <div className="card-body">
                   <p className="amount-paid">10,272.90</p>
                   <p>Amount Paid</p>
-                  <p>10,272.90 out of 61,637.39</p>
+                  <p>{`10,272.90 out of 61,637.39`}</p>
                   <div className="progress">
-                    <div className="progress-bar bg-success" style={{ width: '20%' }}></div>
+                    <div className="progress-bar"></div>
                   </div>
                   <p><strong>Interest Rate:</strong> 5%</p>
                   <p><strong>Interest Due:</strong> 1,637.39</p>

@@ -2,10 +2,7 @@ import React from 'react';
 import './Loans.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
-<<<<<<<< HEAD:mpsu_coop_front/src/member/Loans/Lons.js
 
-========
->>>>>>>> 3ceaaede8c52f9ee3873bb22ba2091b062530787:mpsu_coop_front/src/member/Loans/Loans.js
 
 const Loans = () => {
   const handleSearch = (event) => {
@@ -24,10 +21,10 @@ const Loans = () => {
   };
 
   return (
-    <div className="wrapper">
-      <div className="content-wrapper">
-        <section className="content-header">
-          <div className="container-fluid">
+    <div className="loan">
+      <div className="loan-wrapper">
+        <section className="loan-header">
+          <div className="loan-fluid">
             <div className="row mb-2">
               <div className="col-sm-6">
                 <h1>Loans</h1>
@@ -36,25 +33,25 @@ const Loans = () => {
           </div>
         </section>
 
-        <section className="content">
-          <div className="container-fluid">
+        <section className="loans">
+          <div className="loans-fluid">
             <div className="row">
               <div className="col-12">
                 <div className="card">
                   <div className="card-body">
 
-                    <form className="search-form" id="search-form" onSubmit={(e) => e.preventDefault()}>
-                      <input
-                        type="text"
-                        className="search-input"
-                        id="search-query"
-                        placeholder="Find Something....."
-                        onChange={handleSearch}
-                      />
-                      <button type="submit" className="search-button">
-                        <FontAwesomeIcon icon={faSearch} />  {/* Use the FontAwesomeIcon component */}
-                      </button>
-                    </form>
+                  <form className="search-form" id="search-form" onSubmit={(e) => e.preventDefault()}>
+                    <input
+                      type="text"
+                      className="search-input"
+                      id="search-query"
+                      placeholder="Find Something....."
+                      onChange={handleSearch}
+                    />
+                    <button type="submit" className="search-button">
+                      <FontAwesomeIcon icon={faSearch} />
+                    </button>
+                  </form>
 
                     <table className="table table-bordered table-striped">
                       <thead>

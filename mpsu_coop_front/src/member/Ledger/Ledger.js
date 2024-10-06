@@ -3,7 +3,7 @@ import './Ledger.css';
 
 const Ledger = () => {
   return (
-    <div className="content-wrapper">
+    <div className="ledger-wrapper">
       <div className="ledger-table" id="ledgerTable">
         <h2>Ledger</h2>
         <div>
@@ -15,6 +15,7 @@ const Ledger = () => {
           <span>58391</span>
         </div>
         <table>
+          <caption>Overview of Loans, Payments, and Charges</caption>
           <thead>
             <tr>
               <th colSpan="2">LOANS</th>
@@ -35,30 +36,20 @@ const Ledger = () => {
             </tr>
           </thead>
           <tbody>
+            {/* Example row */}
             <tr>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <td>2024-01-01</td>
+              <td>$1,000.00</td>
+              <td>2024-01-15</td>
+              <td>123456</td>
+              <td>Monthly Payment</td>
+              <td>$100.00</td>
+              <td>$900.00</td>
+              <td>$5.00</td>
+              <td>$2.00</td>
+              <td>$3.00</td>
             </tr>
-            <tr>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-            </tr>
+            {/* Add more rows as needed */}
           </tbody>
         </table>
         <button className="print-btn" onClick={() => window.print()}>Print</button>
