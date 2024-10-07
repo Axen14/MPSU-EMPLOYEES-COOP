@@ -1,20 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import styles from './Members.css';
+import './Members.css';
+import '@fortawesome/fontawesome-free/css/all.min.css'; // Import Font Awesome
 
 function Modal({ isOpen, onClose, children }) {
   if (!isOpen) return null;
 
   return (
-    <div className={styles.modalOverlay}>
-      <div className={styles.modalContent}>
-        <button className={styles.closeButton} onClick={onClose}>
+    <div className="modalOverlay">
+      <div className="modalContent">
+        <button className="closeButton" onClick={onClose}>
           &times;
         </button>
         {children}
       </div>
     </div>
   );
+}
+
+// Define LoadingSpinner component
+function LoadingSpinner() {
+  return <div className="spinner">Loading...</div>;
 }
 
 function Members() {
@@ -24,6 +30,7 @@ function Members() {
   const [newMember, setNewMember] = useState({});
   const [editingMember, setEditingMember] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Fetch members 
   useEffect(() => {
@@ -41,12 +48,33 @@ function Members() {
     fetchMembers();
   }, []);
 
+  useEffect(() => {
+    // Disable scrolling when the modal is open
+    if (showAddForm || editingMember) {
+      document.body.classList.add('no-scroll');
+    } else {
+      document.body.classList.remove('no-scroll');
+    }
+
+    // Cleanup function to remove the class when the component unmounts
+    return () => {
+      document.body.classList.remove('no-scroll');
+    };
+  }, [showAddForm, editingMember]);
+
   const handleAddMember = async () => {
+    // Basic validation
+    if (!newMember.first_name || !newMember.last_name || !newMember.email) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
     try {
       const response = await axios.post('http://localhost:8000/api/members/', newMember);
       setMembers([...members, response.data]);
       setNewMember({});
       setShowAddForm(false);
+      setSuccessMessage('Member added successfully!');
     } catch (err) {
       setError(err);
     }
@@ -56,6 +84,7 @@ function Members() {
     try {
       await axios.delete(`http://localhost:8000/api/members/${id}/`);
       setMembers(members.filter(member => member.memId !== id));
+      setSuccessMessage('Member deleted successfully!');
     } catch (err) {
       setError(err);
     }
@@ -67,22 +96,25 @@ function Members() {
       const response = await axios.put(`http://localhost:8000/api/members/${id}/`, updatedMember);
       setMembers(members.map(member => (member.memId === id ? response.data : member)));
       setEditingMember(null);
+      setSuccessMessage('Member updated successfully!');
     } catch (err) {
       setError(err);
     }
   };
 
-  if (loading) return <div className={styles.loadingMessage}>Loading...</div>;
-  if (error) return <div className={styles.errorMessage}>Error: {error.message}</div>;
+  if (loading) return <LoadingSpinner />; // Use LoadingSpinner here
+  if (error) return <div className="errorMessage">Error: {error.message}</div>;
 
   return (
-    <div className={styles.membersSection}>
-      <div className={styles.tableHeader}>
-        <h2 className={styles.membersTitle}>MEMBERS</h2>
-        <button className={styles.addButton} onClick={() => setShowAddForm(true)}>
-          Add Member
+    <div className="membersSection">
+      <div className="tableHeader">
+        <h2 className="membersTitle">MEMBERS</h2>
+        <button className="addButton" onClick={() => setShowAddForm(true)}>
+          <i className="fas fa-user-plus"></i> Add Member
         </button>
       </div>
+
+      {successMessage && <div className="successMessage">{successMessage}</div>}
 
       {/* Modal for Add Member */}
       <Modal isOpen={showAddForm} onClose={() => setShowAddForm(false)}>
@@ -96,11 +128,11 @@ function Members() {
             onChange={(e) => setNewMember({ ...newMember, [field]: e.target.value })}
           />
         ))}
-        <button className={styles.submitButton} onClick={handleAddMember}>Submit</button>
+        <button className="submitButton" onClick={handleAddMember}>Submit</button>
       </Modal>
 
       {/* Members Table */}
-      <table className={styles.membersTable}>
+      <table className="membersTable">
         <thead>
           <tr>
             <th>ID</th>
@@ -120,8 +152,12 @@ function Members() {
               <td>{member.phone_number}</td>
               <td>{member.address}</td>
               <td>
-                <button className={styles.editButton} onClick={() => setEditingMember(member)}>Edit</button>
-                <button className={styles.deleteButton} onClick={() => handleDeleteMember(member.memId)}>Delete</button>
+                <button className="editButton" onClick={() => setEditingMember(member)}>
+                  <i className="fas fa-user-edit"></i> Edit
+                </button>
+                <button className="deleteButton" onClick={() => handleDeleteMember(member.memId)}>
+                  <i className="fas fa-trash"></i> Delete
+                </button>
               </td>
             </tr>
           ))}
@@ -141,8 +177,8 @@ function Members() {
               onChange={(e) => setEditingMember({ ...editingMember, [field]: e.target.value })}
             />
           ))}
-          <button className={styles.submitButton} onClick={() => handleEditMember(editingMember.memId)}>Save</button>
-          <button className={styles.cancelButton} onClick={() => setEditingMember(null)}>Cancel</button>
+          <button className="submitButton" onClick={() => handleEditMember(editingMember.memId)}>Save</button>
+          <button className="cancelButton" onClick={() => setEditingMember(null)}>Cancel</button>
         </Modal>
       )}
     </div>

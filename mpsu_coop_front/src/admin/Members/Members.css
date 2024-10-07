@@ -1,90 +1,133 @@
-/* Modal Styles */
+body.no-scroll {
+  overflow: hidden;
+}
+
 .modalOverlay {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  opacity: 0;
+  animation: fadeIn 0.3s forwards;
 }
 
 .modalContent {
-  background-color: white;
-  padding: 20px;
+  background-color: #686868;
+  padding: 50px;
   border-radius: 8px;
-  width: 400px;
+  width: 450px;
+  max-width: 100%;
   position: relative;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transform: scale(0.7);
+  animation: scaleUp 0.3s forwards;
+  color: black;
+  font-size: 21px;
 }
 
 .closeButton {
-  position: absolute;
-  top: 10px;
-  right: 10px;
   background: none;
   border: none;
   font-size: 1.5rem;
+  position: absolute;
+  top: 10px;
+  right: 10px;
   cursor: pointer;
 }
 
-.submitButton, .cancelButton {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-.cancelButton {
-  background-color: #f44336;
-}
-
-.submitButton:hover, .cancelButton:hover {
-  opacity: 0.9;
-}
-
-/* Table Styles */
 .membersTable {
+  background-color: #858585;
+  color: #000;
   width: 100%;
   border-collapse: collapse;
-  margin: 20px 0;
+  font-size: 16px;
+  text-align: center;
+  margin: 10px auto; 
 }
 
-.membersTable th, .membersTable td {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 8px;
+.membersTable th,
+.membersTable td {
+  padding: 10px 50px;
+  border: 1px solid #000; 
 }
 
 .membersTable th {
-  background-color: #f2f2f2;
+  background-color: #000000;
+  font-weight: bold;
+  color: #ffffff;
 }
 
-.editButton, .deleteButton {
-  background-color: #2196F3;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
+.membersSection {
+  padding: 20px;
+  margin: 5px;
+}
+
+.tableHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  margin-top: 0;
+}
+
+.membersTitle {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.addButton, .editButton, .deleteButton {
+  display: flex;
+  align-items: center;
+  padding: 10px 10px; 
+  font-size: 14px;
+  border-radius: 40px;
+}
+
+.addButton i, .editButton i, .deleteButton i {
+  margin-right: 8px;
+  font-size: 16px; 
+}
+
+.addButton {
+  margin-left: 900px;
+  background-color: #27d450;
+}
+
+.editButton {
+  background-color: #4489de;
 }
 
 .deleteButton {
-  background-color: #f44336;
+  background-color: #dc3545;
 }
 
-.editButton:hover, .deleteButton:hover {
-  opacity: 0.8;
+.cancelButton {
+  background-color: #ff0000;
 }
 
-/* Loading and Error Messages */
-.loadingMessage, .errorMessage {
+button:hover {
+  opacity: 0.9;
+}
+
+input {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #000000;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.loadingMessage,
+.errorMessage {
+  font-size: 18px;
   color: #333;
   text-align: center;
   margin: 20px 0;
@@ -94,47 +137,35 @@
   color: red;
 }
 
-/* Section and Header Styles */
-.membersSection {
-  padding: 20px;
+.spinner {
+  font-size: 18px;
+  text-align: center;
+  margin: 20px 0;
 }
 
-.tableHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.successMessage {
+  font-size: 18px;
+  color: green;
+  text-align: center;
+  margin: 20px 0;
 }
 
-.membersTitle {
-  margin: 0;
-  font-size: 1.5rem;
-  color: #333;
+/* Animation for fade-in */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
-.addButton {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.addButton:hover {
-  opacity: 0.8;
-}
-
-/* Input Field Styles */
-input {
-  width: calc(100% - 20px);
-  padding: 10px;
-  margin: 10px 0;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-input:focus {
-  border-color: #4CAF50;
-  outline: none;
+/* Animation for scale-up */
+@keyframes scaleUp {
+  0% {
+    transform: scale(0.7);
+  }
+  100% {
+    transform: scale(1);
+  }
 }

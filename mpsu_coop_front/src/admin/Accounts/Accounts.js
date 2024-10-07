@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import styles from './Accounts.css'; 
+import './Accounts.css';
 import DepositWithdrawForm from '../DepositWithdrawForm/DepositWithdrawForm'; 
 
 function Accounts() {
@@ -8,11 +8,13 @@ function Accounts() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false); 
-  const [showAddForm, setShowAddForm] = useState(false); // State to manage the Add Account form
+  const [showAddForm, setShowAddForm] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null); 
   const [actionType, setActionType] = useState('');
-  const [accountNumber, setAccountNumber] = useState(''); // New account number state
-  const [accountHolder, setAccountHolder] = useState(1); // Adjust as necessary
+  const [accountNumber, setAccountNumber] = useState(''); 
+  const [accountHolder, setAccountHolder] = useState(1); 
+  const [shareCapital, setShareCapital] = useState(0); // New state for Share Capital
+  const [status, setStatus] = useState('Active'); // New state for Status
 
   useEffect(() => {
     const fetchAccounts = async () => {
@@ -30,23 +32,26 @@ function Accounts() {
   }, []);
 
   const handleAddAccount = async (e) => {
-    e.preventDefault(); // Prevent form submission
+    e.preventDefault(); 
 
     const newAccount = {
       account_number: accountNumber,
-      account_holder: accountHolder, // Ensure this ID exists in your system
-      status: 'Active',
+      account_holder: accountHolder,
+      shareCapital: shareCapital, // Include Share Capital
+      status: status, // Include Status
     };
 
     try {
       await axios.post('http://localhost:8000/api/accounts/', newAccount);
       const response = await axios.get('http://localhost:8000/api/accounts/');
       setAccounts(response.data);
-      setShowAddForm(false); // Close the add form
-      setAccountNumber(''); // Reset account number
-      setAccountHolder(1); // Reset account holder
+      setShowAddForm(false); 
+      setAccountNumber(''); 
+      setAccountHolder(1); 
+      setShareCapital(0); // Reset Share Capital
+      setStatus('Active'); // Reset Status
     } catch (err) {
-      console.error(err.response.data); // Log error details
+      console.error(err.response.data); 
       setError(err);
     }
   };
@@ -72,17 +77,17 @@ function Accounts() {
     setActionType('');
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (loading) return <div className="loading">Loading...</div>;
+  if (error) return <div className="error">Error: {error.message}</div>;
 
   return (
-    <div className={styles.accountsSection} style={{ width: '100%', border: '2px solid blue', background: 'white' }}>
-      <div className={styles.tableHeader}>
-        <h2 className={styles.accountsTitle} style={{ width: '50%', display: 'inline-block', flexGrow: '1' }}>ACCOUNTS</h2>
-        <button className={styles.addButton} onClick={() => setShowAddForm(true)} style={{ width: '10%', marginLeft: '250px', backgroundColor: '#41ac6a' }}>Add Account</button>
+    <div className="accounts-section">
+      <div className="table-header">
+        <h2 className="accounts-title">ACCOUNTS</h2>
+        <button className="add-button" onClick={() => setShowAddForm(true)}>Add Account</button>
       </div>
-      <table className={styles.accountsTable} style={{ border: '2px solid #000', width: '100%' }}>
-        <thead style={{ border: '2px solid #000' }}>
+      <table className="accounts-table">
+        <thead>
           <tr>
             <th>Account Number</th>
             <th>Account Holder</th>
@@ -93,15 +98,15 @@ function Accounts() {
         </thead>
         <tbody>
           {accounts.map((account) => (
-            <tr key={account.account_number} style={{ textAlign: 'center' }}>
+            <tr key={account.account_number}>
               <td>{account.account_number}</td>
               <td>{account.account_holder ? `${account.account_holder.first_name} ${account.account_holder.last_name}` : 'N/A'}</td>
               <td>{account.shareCapital}</td>
               <td>{account.status}</td>
               <td>
-                <button onClick={() => handleDeleteAccount(account.account_number)}>Delete</button>
-                <button onClick={() => openForm(account.account_number, 'deposit')}>Deposit</button>
-                <button onClick={() => openForm(account.account_number, 'withdraw')}>Withdraw</button>
+                <button className="delete-button" onClick={() => handleDeleteAccount(account.account_number)}>Delete</button>
+                <button className="deposit-button" onClick={() => openForm(account.account_number, 'deposit')}>Deposit</button>
+                <button className="withdraw-button" onClick={() => openForm(account.account_number, 'withdraw')}>Withdraw</button>
               </td>
             </tr>
           ))}
@@ -119,7 +124,7 @@ function Accounts() {
       )}
 
       {showAddForm && (
-        <div style={{ marginTop: '20px', border: '1px solid #000', padding: '20px', background: '#f9f9f9' }}>
+        <div className="add-account-form">
           <h3>Add New Account</h3>
           <form onSubmit={handleAddAccount}>
             <div>
@@ -130,6 +135,7 @@ function Accounts() {
                 value={accountNumber}
                 onChange={(e) => setAccountNumber(e.target.value)}
                 required
+                className="input-field"
               />
             </div>
             <div>
@@ -140,10 +146,35 @@ function Accounts() {
                 value={accountHolder}
                 onChange={(e) => setAccountHolder(e.target.value)}
                 required
+                className="input-field"
               />
             </div>
-            <button type="submit">Add Account</button>
-            <button type="button" onClick={() => setShowAddForm(false)}>Cancel</button>
+            <div>
+              <label>Share Capital:</label>
+              <input
+                type="number"
+                placeholder="Share Capital"
+                value={shareCapital}
+                onChange={(e) => setShareCapital(e.target.value)}
+                required
+                className="input-field"
+              />
+            </div>
+            <div>
+              <label>Status:</label>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                required
+                className="input-field"
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+                <option value="Pending">Pending</option>
+              </select>
+            </div>
+            <button type="submit" className="submit-button">Add Account</button>
+            <button type="button" className="cancel-button" onClick={() => setShowAddForm(false)}>Cancel</button>
           </form>
         </div>
       )}
