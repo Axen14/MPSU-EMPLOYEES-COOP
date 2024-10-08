@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Members.css';
-import '@fortawesome/fontawesome-free/css/all.min.css'; // Import Font Awesome
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 function Modal({ isOpen, onClose, children }) {
   if (!isOpen) return null;
@@ -18,7 +18,6 @@ function Modal({ isOpen, onClose, children }) {
   );
 }
 
-// Define LoadingSpinner component
 function LoadingSpinner() {
   return <div className="spinner">Loading...</div>;
 }
@@ -32,7 +31,6 @@ function Members() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Fetch members 
   useEffect(() => {
     const fetchMembers = async () => {
       try {
@@ -49,14 +47,12 @@ function Members() {
   }, []);
 
   useEffect(() => {
-    // Disable scrolling when the modal is open
     if (showAddForm || editingMember) {
       document.body.classList.add('no-scroll');
     } else {
       document.body.classList.remove('no-scroll');
     }
 
-    // Cleanup function to remove the class when the component unmounts
     return () => {
       document.body.classList.remove('no-scroll');
     };
@@ -102,85 +98,115 @@ function Members() {
     }
   };
 
-  if (loading) return <LoadingSpinner />; // Use LoadingSpinner here
+  // Calculate statistics based on members
+  const totalBorrowers = members.length;
+  const activeBorrowers = members.filter(member => member.status === 'active').length; 
+  const paidOffBorrowers = members.filter(member => member.status === 'paid-off').length; 
+
+  const totalLoans = totalBorrowers; 
+  const activeLoans = activeBorrowers; 
+
+  if (loading) return <LoadingSpinner />;
   if (error) return <div className="errorMessage">Error: {error.message}</div>;
 
   return (
-    <div className="membersSection">
-      <div className="tableHeader">
-        <h2 className="membersTitle">MEMBERS</h2>
-        <button className="addButton" onClick={() => setShowAddForm(true)}>
-          <i className="fas fa-user-plus"></i> Add Member
-        </button>
-      </div>
+    <div className="dashboard">
+      <section className="stats-section">
+        <div className="stat-card">
+          <h3>Borrowers</h3>
+          <p>{totalBorrowers}</p>
+          <small>Active: {activeBorrowers}</small>
+          <small>Paid-off: {paidOffBorrowers}</small>
+        </div>
+        <div className="stat-card">
+          <h3>Net Total Loan Amount</h3>
+          <p>{/* Calculate total loan amount here */} 5,000,000</p>
+          <small>Received: {/* Received amount calculation */} 3,000,000</small>
+        </div>
+        <div className="stat-card">
+          <h3>Loans</h3>
+          <p>{totalLoans}</p>
+          <small>Active: {activeLoans}</small>
+          <small>Fully Paid: {/* Calculate fully paid loans here */} 3</small>
+        </div>
+      </section>
+      
+      <div className="membersSection">
+        <div className="tableHeader">
+          <h2 className="membersTitle">MEMBERS</h2>
+          <button className="addButton" onClick={() => setShowAddForm(true)}>
+            <i className="fas fa-user-plus"></i> Add Member
+          </button>
+        </div>
 
-      {successMessage && <div className="successMessage">{successMessage}</div>}
+        {successMessage && <div className="successMessage">{successMessage}</div>}
 
-      {/* Modal for Add Member */}
-      <Modal isOpen={showAddForm} onClose={() => setShowAddForm(false)}>
-        <h3>Add Member</h3>
-        {['first_name', 'middle_name', 'last_name', 'email', 'phone_number', 'address'].map((field) => (
-          <input
-            key={field}
-            type="text"
-            placeholder={field.replace('_', ' ').toUpperCase()}
-            value={newMember[field] || ''}
-            onChange={(e) => setNewMember({ ...newMember, [field]: e.target.value })}
-          />
-        ))}
-        <button className="submitButton" onClick={handleAddMember}>Submit</button>
-      </Modal>
-
-      {/* Members Table */}
-      <table className="membersTable">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone Number</th>
-            <th>Address</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {members.map((member) => (
-            <tr key={member.memId}>
-              <td>{member.memId}</td>
-              <td>{`${member.first_name} ${member.last_name}`}</td>
-              <td>{member.email}</td>
-              <td>{member.phone_number}</td>
-              <td>{member.address}</td>
-              <td>
-                <button className="editButton" onClick={() => setEditingMember(member)}>
-                  <i className="fas fa-user-edit"></i> Edit
-                </button>
-                <button className="deleteButton" onClick={() => handleDeleteMember(member.memId)}>
-                  <i className="fas fa-trash"></i> Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* Edit Member Form */}
-      {editingMember && (
-        <Modal isOpen={!!editingMember} onClose={() => setEditingMember(null)}>
-          <h3>Edit Member</h3>
+        {/* Modal for Add Member */}
+        <Modal isOpen={showAddForm} onClose={() => setShowAddForm(false)}>
+          <h3>Add Member</h3>
           {['first_name', 'middle_name', 'last_name', 'email', 'phone_number', 'address'].map((field) => (
             <input
               key={field}
               type="text"
               placeholder={field.replace('_', ' ').toUpperCase()}
-              value={editingMember[field] || ''}
-              onChange={(e) => setEditingMember({ ...editingMember, [field]: e.target.value })}
+              value={newMember[field] || ''}
+              onChange={(e) => setNewMember({ ...newMember, [field]: e.target.value })}
             />
           ))}
-          <button className="submitButton" onClick={() => handleEditMember(editingMember.memId)}>Save</button>
-          <button className="cancelButton" onClick={() => setEditingMember(null)}>Cancel</button>
+          <button className="submitButton" onClick={handleAddMember}>Submit</button>
         </Modal>
-      )}
+
+        {/* Members Table */}
+        <table className="membersTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone Number</th>
+              <th>Address</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {members.map((member) => (
+              <tr key={member.memId}>
+                <td>{member.memId}</td>
+                <td>{`${member.first_name} ${member.last_name}`}</td>
+                <td>{member.email}</td>
+                <td>{member.phone_number}</td>
+                <td>{member.address}</td>
+                <td>
+                  <button className="editButton" onClick={() => setEditingMember(member)}>
+                    <i className="fas fa-user-edit"></i> Edit
+                  </button>
+                  <button className="deleteButton" onClick={() => handleDeleteMember(member.memId)}>
+                    <i className="fas fa-trash"></i> Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* Edit Member Form */}
+        {editingMember && (
+          <Modal isOpen={!!editingMember} onClose={() => setEditingMember(null)}>
+            <h3>Edit Member</h3>
+            {['first_name', 'middle_name', 'last_name', 'email', 'phone_number', 'address'].map((field) => (
+              <input
+                key={field}
+                type="text"
+                placeholder={field.replace('_', ' ').toUpperCase()}
+                value={editingMember[field] || ''}
+                onChange={(e) => setEditingMember({ ...editingMember, [field]: e.target.value })}
+              />
+            ))}
+            <button className="submitButton" onClick={() => handleEditMember(editingMember.memId)}>Save</button>
+            <button className="cancelButton" onClick={() => setEditingMember(null)}>Cancel</button>
+          </Modal>
+        )}
+      </div>
     </div>
   );
 }

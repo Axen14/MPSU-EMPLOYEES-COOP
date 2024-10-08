@@ -41,6 +41,26 @@ body.no-scroll {
   cursor: pointer;
 }
 
+.dashboard {
+  padding: 1px;
+}
+
+.stats-section {
+  display: flex;
+  justify-content: space-around; 
+  margin-bottom: 1px; 
+}
+
+.stat-card {
+  background-color: #7c7c7c;
+  border-radius: 8px;
+  padding: 1px;
+  text-align: center;
+  width: 30%;
+  color: black;
+  font-size: 16px;
+}
+
 .membersTable {
   background-color: #858585;
   color: #000;

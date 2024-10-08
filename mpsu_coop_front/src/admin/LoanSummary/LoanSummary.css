@@ -1,39 +1,26 @@
 .loan {
-  padding: 20px; /* Padding around the entire loan section */
-  background-color: #f5f5f5; /* Light background for contrast */
-  border-radius: 8px; /* Rounded corners for the section */
+  padding: 5px;
 }
 
 .loanHeader {
-  margin-bottom: 20px; /* Margin below the header */
+  margin-bottom: 5px;
 }
 
 .loanTitle {
-  font-size: 24px; /* Font size for the loan title */
-  font-weight: bold; /* Make the title bold */
-  color: #333; /* Dark color for better contrast */
+  font-size: 24px;
 }
 
 .loanList {
   display: flex;
-  flex-direction: column; /* Stack loan cards vertically */
-  gap: 10px; /* Space between loan cards */
+  flex-wrap: wrap;
+  gap: 15px;
 }
 
 .loanCard {
-  padding: 15px; /* Padding inside each loan card */
-  background-color: rgb(0, 110, 255); /* Background color for loan cards */
-  border-radius: 8px; /* Rounded corners for loan cards */
-  color: white; /* Text color */
-  text-align: center; /* Center text alignment */
-}
-
-.loanCard h3 {
-  margin: 0; /* Remove default margin */
-  font-size: 20px; /* Font size for loan type */
-}
-
-.loanCard p {
-  margin: 5px 0 0; /* Margin for the loan amount */
-  font-size: 16px; /* Font size for loan amount */
+  border: 1px solid #000000;
+  border-radius: 8px;
+  padding: 15px;
+  flex: 1 1 200px; 
+  text-align: center;
+  background-color: #6e6c6c;
 }
