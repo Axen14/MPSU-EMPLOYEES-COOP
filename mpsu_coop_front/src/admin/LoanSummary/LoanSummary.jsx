@@ -1,12 +1,6 @@
 import React from 'react';
 import './LoanSummary.css';
-
-const loanTypes = [
-  { name: 'REGULAR LOAN', amount: 500000 },
-  { name: 'BUSINESS LOAN', amount: 300000 },
-  { name: 'EMERGENCY LOAN', amount: 200000 },
-  { name: 'HOME LOAN', amount: 750000 },
-];
+const loanTypes = ['REGULAR LOAN', 'BUSINESS LOAN', 'EMERGENCY LOAN', 'HOME LOAN'];
 
 function LoanSummary() {
   return (
@@ -14,16 +8,17 @@ function LoanSummary() {
       <div className="loanHeader">
         <h2 className="loanTitle">LOAN SUMMARY</h2>
       </div>
-      <section className="loanList">
-        {loanTypes.map((loan, index) => (
+      <div className="loanList">
+        {loanTypes.map((type, index) => (
           <div key={index} className="loanCard">
-            <h3>{loan.name}</h3>
-            <p>{loan.amount.toLocaleString()}</p>
+            <h3>{type}</h3>
+            <p>500,000</p>
           </div>
         ))}
-      </section>
+      </div>
     </div>
   );
 }
 
 export default LoanSummary;
+

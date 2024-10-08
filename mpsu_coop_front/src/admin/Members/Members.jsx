@@ -127,10 +127,10 @@ function Members() {
           <h3>Loans</h3>
           <p>{totalLoans}</p>
           <small>Active: {activeLoans}</small>
-          <small>Fully Paid: {/* Calculate fully paid loans here */} 3</small>
+          <small>Fully Paid: {/* Calculate fully paid loans here */} </small>
         </div>
       </section>
-      
+
       <div className="membersSection">
         <div className="tableHeader">
           <h2 className="membersTitle">MEMBERS</h2>
