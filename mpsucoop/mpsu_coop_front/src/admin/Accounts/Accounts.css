@@ -1,0 +1,50 @@
+.formWrapper {
+  width: 60%; 
+  max-width: 600px; 
+  margin: 20px auto; 
+  padding: 20px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+
+.formWrapper input,
+.formWrapper select,
+.formWrapper textarea,
+.formWrapper button {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.tableHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.accountsTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.accountsTable th, .accountsTable td {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.addButton {
+  padding: 10px 20px;
+  background-color: #41ac6a;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.addButton:hover {
+  background-color: #369a56;
+}

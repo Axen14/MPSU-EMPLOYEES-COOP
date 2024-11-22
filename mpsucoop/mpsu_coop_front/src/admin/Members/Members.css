@@ -1,0 +1,68 @@
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.formContainer {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 350px; 
+  margin: 0 15px;
+  position: relative;
+}
+
+
+input {
+  font-size: 1rem;
+  padding: 10px;
+  margin: 8px 0;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+
+button {
+  font-size: 1rem;
+  padding: 10px;
+  margin-top: 10px;
+  background-color: #41ac6a;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  /* width: 100%; */
+}
+
+button:hover {
+  background-color: #359a57;
+}
+
+.errorText {
+  color: red;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+button:last-of-type {
+  background-color: #ff4c4c;
+  margin-top: 5px;
+}
+
+button:last-of-type:hover {
+  background-color: #d93636;
+}
