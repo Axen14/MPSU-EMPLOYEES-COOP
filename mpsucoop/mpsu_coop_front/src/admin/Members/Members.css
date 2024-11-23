@@ -29,33 +29,52 @@ input {
   padding: 10px;
   margin: 8px 0;
   width: 100%;
-  border: 1px solid #ccc;
+  border: 2px solid #000000;
   border-radius: 5px;
   box-sizing: border-box;
 }
 
+table {
+  width: 100%;
+  margin-top: 40px;
+  border-collapse: collapse;
+}
+
+table th, table td {
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #010101;
+}
+
+table th {
+  background-color: #bababa;
+  font-weight: bold;
+  color: #000000;
+}
 
 button {
-  font-size: 1rem;
-  padding: 10px;
-  margin-top: 10px;
-  background-color: #41ac6a;
-  color: white;
+  padding: 10px 15px;
+  background-color: #4CAF50;
+  color: #000000;
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
+  font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  /* width: 100%; */
+  flex-grow: 1; 
+  margin: 5px;
+}
+
+button[type="button"] {
+  background-color: #ff1515;
 }
 
 button:hover {
-  background-color: #359a57;
+  background-color: #00ff0d;
 }
 
-.errorText {
-  color: red;
-  font-size: 0.9rem;
-  margin-bottom: 10px;
+button[type="button"]:hover {
+  background-color: #ff0000;
 }
 
 button:last-of-type {
@@ -64,5 +83,18 @@ button:last-of-type {
 }
 
 button:last-of-type:hover {
-  background-color: #d93636;
+  background-color: #ff0000;
 }
+
+@media (max-width: 600px) {
+  .buttonContainer {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  button {
+    width: 100%;
+    font-size: 14px;
+  }
+}
+

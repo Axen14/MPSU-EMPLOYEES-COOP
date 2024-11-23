@@ -1,7 +1,7 @@
 .loanSummary {
     display:flex;
     align-items: center;
-    gap:200px;
+    gap: 150px;
     color: #000;
     text-align: center;
     justify-content: center;
@@ -9,7 +9,7 @@
     width: 100%;
     padding: 0px;
     font: 600 16px Inter, sans-serif;
-    border: 2px solid red;
+    border: 2px solid rgb(3, 3, 3);
     background-color: #ffffff4f;
   }
 
@@ -39,7 +39,7 @@
     align-self: stretch;
     flex: 1;
     border-radius: 0 0 10px 10px;
-    background-color: #fff;
+    background-color: #000000;
     width: 100%;
     padding: 10px;
     border: 1px solid rgba(0, 0, 0, 0);

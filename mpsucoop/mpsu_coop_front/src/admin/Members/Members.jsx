@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import styles from './Members.css';
+import {AiOutlineUsergroupAdd} from "react-icons/ai";
+import { FaEdit } from 'react-icons/fa';
+import { FaTrash } from "react-icons/fa6";
 
 function Members() {
   const [members, setMembers] = useState([]);
@@ -41,7 +43,7 @@ function Members() {
       const response = await axios.post('http://localhost:8000/members/', newMember);
       setMembers([...members, response.data]);
       setNewMember({});
-      setShowAddForm(false);  
+      setShowAddForm(false);
       setFormError(null);
     } catch (err) {
       setFormError('Error adding member. Please try again.');
@@ -73,8 +75,8 @@ function Members() {
           member.memId === editingMember.memId ? response.data : member
         )
       );
-      setEditingMember(null); 
-      setShowAddForm(false);  
+      setEditingMember(null);
+      setShowAddForm(false);
       setFormError(null);
     } catch (err) {
       setFormError('Error updating member. Please try again.');
@@ -82,80 +84,93 @@ function Members() {
   };
 
   const handleStartEdit = (member) => {
-    setEditingMember({ ...member });  
-    setShowAddForm(true);  
+    setEditingMember({ ...member });
+    setShowAddForm(true);
   };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <div className={styles.membersSection}>
+    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
       {showAddForm ? (
-        <div className={styles.addMemberForm}>
+        <div style={{ margin: '20px', border: '2px solid red', padding: '5px', borderRadius: '5px' }}>
           <h3>{editingMember ? 'Edit Member' : 'Add Member'}</h3>
-          {formError && <p className={styles.errorText}>{formError}</p>}
+          {formError && <p style={{ color: 'red' }}>{formError}</p>}
+
           <input
             type="text"
             placeholder="First Name"
             name="first_name"
             value={editingMember?.first_name || newMember.first_name || ''}
             onChange={e => handleInputChange(e, editingMember ? setEditingMember : setNewMember)}
+            style={{ margin: '20px 3px', padding: '5px' }}
           />
-          <input
-            type="text"
-            placeholder="Middle Name"
-            name="middle_name"
-            value={editingMember?.middle_name ||newMember.middle_name || ''}
-            onChange={e => handleInputChange(e, editingMember ? setEditingMember : setNewMember)}
-          />          
           <input
             type="text"
             placeholder="Last Name"
             name="last_name"
             value={editingMember?.last_name || newMember.last_name || ''}
             onChange={e => handleInputChange(e, editingMember ? setEditingMember : setNewMember)}
+            style={{ margin: '20px 3px', padding: '5px' }}
           />
-          <button onClick={editingMember ? handleEditMember : handleAddMember}>
+          <button
+            onClick={editingMember ? handleEditMember : handleAddMember}
+            style={{ marginRight: '10px', padding: '5px 10px' }}
+          >
             {editingMember ? 'Save Changes' : 'Submit'}
           </button>
-          <button onClick={() => setShowAddForm(false)}>Cancel</button>
+          <button onClick={() => setShowAddForm(false)} style={{ padding: '5px 10px' }}>
+            Cancel
+          </button>
         </div>
       ) : (
         <>
-          <div className={styles.tableHeader}>
-            <h2 className={styles.membersTitle}>MEMBERS</h2>
+          <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'left' }}>
+            <h2 style={{ margin: 0 }}>MEMBERS</h2>
             <button
-              className={styles.addButton}
               onClick={() => setShowAddForm(true)}
+              style={{
+                marginLeft: '50%',
+                padding: '10px 20px',
+                backgroundColor: '#4CAF50',
+                color: 'black',
+                cursor: 'pointer',
+              }}
             >
-              Add Member
+              <AiOutlineUsergroupAdd />Add Member
             </button>
           </div>
 
-          <table className={styles.membersTable}>
+          <table style={{ height: '10%' ,width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                <th>Account No.</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone Number</th>
-                <th>Action</th>
+                <th style={{ border: '1px solid black', padding: '8px', backgroundColor: '#f2f2f2' }}>Account No.</th>
+                <th style={{ border: '1px solid black', padding: '8px', backgroundColor: '#f2f2f2' }}>Name</th>
+                <th style={{ border: '1px solid black', padding: '8px', backgroundColor: '#f2f2f2' }}>Email</th>
+                <th style={{ border: '1px solid black', padding: '8px', backgroundColor: '#f2f2f2' }}>Phone Number</th>
+                <th style={{ border: '1px solid black', padding: '8px', backgroundColor: '#f2f2f2' }}>Action</th>
               </tr>
             </thead>
             <tbody>
               {members.map(member => (
-                <tr key={member.memId} style={{ textAlign: 'center' }}>
-                  <td>{member.accountN || 'No Account'}</td>
-                  <td>
-                    {member.first_name} {member.last_name}
-                  </td>
-                  <td>{member.email}</td>
-                  <td>{member.phone_number}</td>
-                  <td>
-                    <button onClick={() => handleStartEdit(member)}>Edit</button>
-                    <button onClick={() => handleDeleteMember(member.memId)}>
-                      Delete
+                <tr key={member.memId} style={{ textAlign: 'center', borderBottom: '1px solid red' }}>
+                  <td style={{ padding: '8px' }}>{member.accountN || 'No Account'}</td>
+                  <td style={{ padding: '8px' }}>{member.first_name} {member.last_name}</td>
+                  <td style={{ padding: '8px' }}>{member.email}</td>
+                  <td style={{ padding: '8px' }}>{member.phone_number}</td>
+                  <td style={{ padding: '8px' }}>
+                    <button
+                      onClick={() => handleStartEdit(member)}
+                      style={{ marginRight: '5px', padding: '5px 10px' }}
+                    >
+                      <FaEdit />Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteMember(member.memId)}
+                      style={{ padding: '5px 10px', backgroundColor: 'red', color: 'black', border: 'none', borderRadius: '3px' }}
+                    >
+                      <FaTrash />Delete
                     </button>
                   </td>
                 </tr>

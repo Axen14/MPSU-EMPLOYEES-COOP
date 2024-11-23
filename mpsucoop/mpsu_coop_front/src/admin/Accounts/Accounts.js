@@ -3,7 +3,10 @@ import axios from 'axios';
 import styles from './Accounts.css'; 
 import DepositWithdrawForm from '../DepositWithdrawForm/DepositWithdrawForm';
 import AddAccountForm from './AddAccountForm';
-import { FaPlus } from 'react-icons/fa';
+import {AiOutlineUsergroupAdd} from "react-icons/ai";
+import { FaTrash } from "react-icons/fa6";
+import { PiHandDepositFill } from "react-icons/pi";
+import { BiMoneyWithdraw } from "react-icons/bi";
 
 function Accounts() {
   const [accounts, setAccounts] = useState([]);
@@ -78,17 +81,16 @@ function Accounts() {
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <div className={styles.accountsSection} style={{ width: '100%', border: '2px solid blue', background: 'white' }}>
+    <div className={styles.accountsSection} style={{ width: '99.5%', height: '100%'}}>
       <div className={styles.tableHeader}>
-        <h2 className={styles.accountsTitle} style={{ width: '50%', display: 'inline-block', flexGrow: '1' }}>
+        <h2 className={styles.accountsTitle} style={{ width: '100%', display: 'inline-block', flexGrow: '1' }}>
           ACCOUNTS
         </h2>
         <button
           className={styles.addButton}
           onClick={() => openForm(null, 'add')}
-          style={{ width: '10%', marginLeft: '250px', backgroundColor: '#41ac6a' }}
-        >
-          <FaPlus /> Add Account
+          style={{ width: '15%', marginLeft: '84%', backgroundColor: '#41ac6a' }}>
+          <AiOutlineUsergroupAdd /> Add Account
         </button>
       </div>
 
@@ -112,9 +114,15 @@ function Accounts() {
                 <td>{account.shareCapital}</td>
                 <td>{account.status}</td>
                 <td>
-                  <button onClick={() => handleDeleteAccount(account.account_number)}>Delete</button>
-                  <button onClick={() => openForm(account, 'deposit')}>Deposit</button>
-                  <button onClick={() => openForm(account, 'withdraw')}>Withdraw</button>
+                <button onClick={() => openForm(account, 'deposit')}>
+                  <PiHandDepositFill /> Deposit
+                </button>
+                <button onClick={() => openForm(account, 'withdraw')}>
+                  <BiMoneyWithdraw /> Withdraw
+                </button>
+                <button onClick={() => handleDeleteAccount(account.account_number)}>
+                  <FaTrash /> Delete
+                </button>
                 </td>
               </tr>
             ))}
@@ -147,3 +155,4 @@ function Accounts() {
 }
 
 export default Accounts;
+

@@ -3,9 +3,9 @@ import styles from './Members.css';
 
 const MembersList = ({ members, setShowFormType }) => {
     return (
-        <div className={styles.membersSection}>
+        <div className={styles.membersSection} style={{ width: '100%', border: '2px solid black', background: 'white' }}>
             <div className={styles.tableHeader}>
-                <h3 className={styles.membersTitle}>Members List</h3>
+                <h3 className={styles.membersTitle} style={{ width: '50%', display: 'inline-block', flexGrow: '1' }}>Members List</h3>
                 <button onClick={() => setShowFormType('add')}>Add Member</button>
             </div>
             <table className={styles.membersTable}>
@@ -33,6 +33,7 @@ const MembersList = ({ members, setShowFormType }) => {
                     ))}
                 </tbody>
             </table>
+
         </div>
     );
 };
