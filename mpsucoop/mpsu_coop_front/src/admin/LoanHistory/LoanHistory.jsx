@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import AddPaymentForm from '../Payments/AddPaymentForm'; 
+import AddPaymentForm from '../Payments/AddPaymentForm'; // Import the AddPaymentForm
 
 const LoanManager = () => {
     const [loans, setLoans] = useState([]);
@@ -17,14 +17,14 @@ const LoanManager = () => {
     const [formVisible, setFormVisible] = useState(false);
     const [editingLoan, setEditingLoan] = useState(null);
     const [error, setError] = useState(null);
-    const [paymentFormVisible, setPaymentFormVisible] = useState(false); 
-    const [selectedLoanForPayment, setSelectedLoanForPayment] = useState(null); 
+    const [paymentFormVisible, setPaymentFormVisible] = useState(false); // State for showing the payment form
+    const [selectedLoanForPayment, setSelectedLoanForPayment] = useState(null); // Selected loan for payment
     const [showPrintButton, setShowPrintButton] = useState(false);
     const [newLoan, setNewLoan] = useState(null);
 
     const BASE_URL = 'http://localhost:8000';
 
-    
+    // Fetch loans
     const fetchLoans = async () => {
         try {
             const response = await axios.get(`${BASE_URL}/loans/`);
@@ -36,10 +36,10 @@ const LoanManager = () => {
     };
 
     useEffect(() => {
-        fetchLoans(); 
+        fetchLoans(); // Load loans on component mount
     }, []);
 
-    
+    // Handle loan form submit (create or edit loan)
     const handleLoanSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -48,18 +48,19 @@ const LoanManager = () => {
                 await axios.put(`${BASE_URL}/loans/${editingLoan.control_number}/`, loanData);
             } else {
                 response = await axios.post(`${BASE_URL}/loans/`, loanData);
-                setNewLoan(response.data); 
-                setShowPrintButton(true);
+                setNewLoan(response.data); // Store the newly created loan details
+                setShowPrintButton(true); // Show the print button
             }
-            fetchLoans(); 
-            resetForm(); 
+            fetchLoans(); // Refresh the loan list
+            // Do not reset form here yet
         } catch (err) {
             console.error('Error saving loan:', err);
             setError('Error saving loan');
         }
     };
-
     
+
+    // Delete loan
     const handleDeleteLoan = async (controlNumber) => {
         try {
             await axios.delete(`${BASE_URL}/loans/${controlNumber}/`);
@@ -69,20 +70,20 @@ const LoanManager = () => {
         }
     };
 
-    
+    // Edit loan
     const handleEditLoan = (loan) => {
         setLoanData(loan);
         setFormVisible(true);
         setEditingLoan(loan);
     };
 
-    
+    // Show payment form
     const handlePayLoan = (loan) => {
         setSelectedLoanForPayment(loan);
-        setPaymentFormVisible(true); 
+        setPaymentFormVisible(true); // Show the payment form
     };
 
-    
+    // Reset the loan form
     const resetForm = () => {
         setLoanData({
             control_number: '',
@@ -96,25 +97,23 @@ const LoanManager = () => {
         });
         setFormVisible(false);
         setEditingLoan(null);
-        setShowPrintButton(false); 
-        setNewLoan(null); 
-        setPaymentFormVisible(false); 
-        setSelectedLoanForPayment(null); 
+        setShowPrintButton(false); // Hide the print button
+        setNewLoan(null); // Clear the newly created loan details
+        setPaymentFormVisible(false); // Hide the payment form
+        setSelectedLoanForPayment(null); // Clear the selected loan for payment
     };
 
     return (
         <div>
             <h2>Loan Management</h2>
 
-            
-            {!paymentFormVisible && (
-                <button onClick={() => setFormVisible(!formVisible)}>
-                    {formVisible ? 'Cancel' : 'Add Loan'}
-                </button>
-            )}
+            {/* Add/Edit Loan Button */}
+            <button onClick={() => setFormVisible(!formVisible)}>
+                {formVisible ? 'Cancel' : 'Add Loan'}
+            </button>
 
-            
-            {formVisible && !paymentFormVisible && (
+            {/* Display Add/Edit Loan Form */}
+            {formVisible && (
                 <form onSubmit={handleLoanSubmit}>
                     <h3>{editingLoan ? 'Edit Loan' : 'Create Loan'}</h3>
 
@@ -190,7 +189,7 @@ const LoanManager = () => {
                 </form>
             )}
 
-            
+            {/* Loan List Display */}
             {!formVisible && !paymentFormVisible && (
                 <>
                     <h2>Loan List</h2>
@@ -233,36 +232,40 @@ const LoanManager = () => {
                 </>
             )}
 
-           
             {showPrintButton && newLoan && (
-                <div>
-                    <p>Loan created successfully!</p>
-                    <button
-                        onClick={() => {
-                            const printContent = `
-                                <h1>Loan Details</h1>
-                                <p>Control Number: ${newLoan.control_number}</p>
-                                <p>Account: ${newLoan.account}</p>
-                                <p>Amount: ${newLoan.loan_amount}</p>
-                                <p>Loan Period: ${newLoan.loan_period} ${newLoan.loan_period_unit}</p>
-                                <p>Type: ${newLoan.loan_type}</p>
-                                <p>Purpose: ${newLoan.purpose}</p>
-                            `;
-                            const printWindow = window.open('', '_blank');
-                            printWindow.document.write(printContent);
-                            printWindow.document.close();
-                            printWindow.print();
-                        }}
-                    >
-                        Print Loan Details
-                    </button>
-                </div>
-            )}
+    <div>
+        <p>Loan created successfully!</p>
+        <button
+            onClick={() => {
+                const printContent = `
+                    <h1>Loan Details</h1>
+                    <p>Control Number: ${newLoan.control_number}</p>
+                    <p>Account: ${newLoan.account}</p>
+                    <p>Amount: ${newLoan.loan_amount}</p>
+                    <p>Loan Period: ${newLoan.loan_period} ${newLoan.loan_period_unit}</p>
+                    <p>Type: ${newLoan.loan_type}</p>
+                    <p>Purpose: ${newLoan.purpose}</p>
+                `;
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`<html><body>${printContent}</body></html>`);
+                printWindow.document.close();
+                printWindow.print();
 
-            
+                // Reset form and hide the print button after printing
+                resetForm();
+            }}
+        >
+            Print Loan Details
+        </button>
+    </div>
+)}
+
+
+            {/* Payment Form */}
             {paymentFormVisible && selectedLoanForPayment && (
                 <div>
                     <AddPaymentForm loan={selectedLoanForPayment} />
+                    <button onClick={() => setPaymentFormVisible(false)}>Cancel</button>
                 </div>
             )}
         </div>
