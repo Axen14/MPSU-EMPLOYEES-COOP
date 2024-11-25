@@ -23,32 +23,11 @@ class MemberSerializer(serializers.ModelSerializer):
         model = Member
         fields = ['memId','accountN', 'first_name', 'last_name', 'email', 'phone_number', "birth_date", 'gender','religion', 'pstatus', 'address']
 
-        # def create(self, validated_data):
-        # account_data = validated_data.pop('accountN', None)
-        # member = Member.objects.create(**validated_data)
 
-        # if account_data:
-        #     Account.objects.create(account_holder=member, **account_data)
-        
-        # return member
     def get_accountN(self, obj):
         return obj.accountN.account_number if hasattr(obj, 'accountN') else None
     
-    # def create(self, validated_data):
-        
-    #     password = validated_data.pop('password')
-    #     account_number = validated_data.get('account_number')
-        
-        
-    #     User = get_user_model()
-        
-        
-    #     user = User.objects.create_user(account_number=account_number, password=password)
-        
-        
-    #     member = Member.objects.create(user=user, **validated_data)
-        
-    #     return member
+
 
     def create(self, validated_data):
         account_data = validated_data.pop('accountN', None)
@@ -75,7 +54,7 @@ class LoanSerializer(serializers.ModelSerializer):
         fields = ['control_number', 'account', 'loan_amount', 'loan_type', 'interest_rate', 
                   'loan_period', 'loan_period_unit', 'loan_date', 'due_date', 'status', 
                   'service_fee', 'penalty_rate', 'purpose', 'bi_monthly_installment', 'payment_schedule']
-        read_only_fields = ['control_number', 'loan_date', 'due_date']
+        read_only_fields = ['control_number', 'loan_date', 'due_date', 'interest_rate', 'service_fee', 'penalty_rate']
     def validate_control_number(self, value):
         try:
             uuid.UUID(str(value))

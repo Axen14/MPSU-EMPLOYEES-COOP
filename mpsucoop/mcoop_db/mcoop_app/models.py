@@ -81,8 +81,8 @@ class Loan(models.Model):
     loan_type = models.CharField(
         max_length=200, choices=[('Regular', 'Regular'), ('Emergency', 'Emergency')], default='Emergency'
     )
-    interest_rate = models.DecimalField(max_digits=5, decimal_places=2) 
-    loan_period = models.PositiveIntegerField(default=12)  
+    interest_rate = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal('5.00')) 
+    loan_period = models.PositiveIntegerField(default=6)  
     loan_period_unit = models.CharField(
         max_length=10, choices=[('months', 'Months'), ('years', 'Years')], default='months'
     )
@@ -90,8 +90,8 @@ class Loan(models.Model):
     due_date = models.DateField(null=True, blank=True)
     status = models.CharField(
         max_length=50,
-        choices=[('Pending', 'Pending'), ('Approved', 'Approved'), ('Active', 'Active'), ('Completed', 'Completed')],
-        default='Pending'
+        choices=[('Approved', 'Approved')],
+        default='Approved'
     )
     service_fee = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal('0.00'))
     penalty_rate = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal('2.00'))
@@ -99,42 +99,51 @@ class Loan(models.Model):
 
 
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+
 
     def save(self, *args, **kwargs):
+        if not self.interest_rate:
+            self.interest_rate = Decimal('5.00')
+        
+        
         if self.loan_date and self.loan_period:
-            loan_period_in_months = self.loan_period
-            self.due_date = self.loan_date + timedelta(days=loan_period_in_months * 30)  
+            loan_period_in_months = self.loan_period * (12 if self.loan_period_unit == 'years' else 1)
+            self.due_date = self.loan_date + timedelta(days=loan_period_in_months * 30)
         super().save(*args, **kwargs)
-
-        if self.status == 'Approved':
-            self.generate_payment_schedule()
-
+        self.generate_payment_schedule()  
+    def check_loan_eligibility_for_reloan(self):
+        """Check if at least 50% of the loan is paid off."""
+        total_paid = self.payments.aggregate(total_paid=Sum('payment_amount'))['total_paid'] or 0
+        return total_paid >= (self.loan_amount / 2)
     def generate_payment_schedule(self):
+        if PaymentSchedule.objects.filter(loan=self).exists():
+            return
         """
-        Generate a bi-monthly payment schedule for the loan.
+        Generate a bi-monthly payment schedule for the loan
         """
+       
         if self.loan_period_unit == 'years':
             total_months = self.loan_period * 12
-        else:
+        elif self.loan_period_unit == 'months':
             total_months = self.loan_period
+        else:
+            raise ValueError("Invalid loan_period_unit. Must be 'months' or 'years'.")
 
-        total_periods = total_months * 2  
-        bi_monthly_rate = (self.interest_rate / Decimal('100')) / 24  
+        total_periods = total_months * 2  # Bi-monthly payments (two per month)
+        bi_monthly_rate = (self.interest_rate / Decimal('100')) / 24  # Bi-monthly interest rate
 
-        
+        # Calculate the total amount due, including interest
         loan_principal = self.loan_amount
-        total_interest = (loan_principal * bi_monthly_rate * total_periods)
+        total_interest = loan_principal * bi_monthly_rate * total_periods
         total_amount_due = loan_principal + total_interest
         bi_monthly_payment = total_amount_due / Decimal(total_periods)
 
-        
+        # Generate payment schedule
         for period in range(total_periods):
-            due_date = self.loan_date + timedelta(days=(period * 15))
+            due_date = self.loan_date + timedelta(days=(period * 15))  # Bi-monthly intervals (15 days apart)
             principal_payment = loan_principal / Decimal(total_periods)
             interest_payment = total_interest / Decimal(total_periods)
-            balance_due = (total_amount_due - (bi_monthly_payment * (period + 1)))
+            balance_due = total_amount_due - (bi_monthly_payment * (period + 1))
 
             PaymentSchedule.objects.create(
                 loan=self,
@@ -144,6 +153,7 @@ class Loan(models.Model):
                 due_date=due_date,
                 balance=balance_due.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
             )
+
 
     def __str__(self):
         return f"Loan {self.control_number} for {self.account} ({self.status})"

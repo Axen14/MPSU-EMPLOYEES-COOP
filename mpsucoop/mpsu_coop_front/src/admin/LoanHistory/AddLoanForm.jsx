@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import './AddLoanForm.css';
 
 const AddLoanForm = ({ onSubmit, existingLoan }) => {
     const [loanAmount, setLoanAmount] = useState('');
@@ -56,99 +55,81 @@ const AddLoanForm = ({ onSubmit, existingLoan }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} style={{ maxWidth: '600px', margin: '0 auto', fontFamily: 'Arial, sans-serif', padding: '20px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: '#f9f9f9' }}>
-            <h3 style={{ textAlign: 'center', color: '#333', marginBottom: '20px' }}>{existingLoan ? 'Edit Loan' : 'Add New Loan'}</h3>
-            <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Account Number:</label>
+        <form onSubmit={handleSubmit}>
+            <h3>{existingLoan ? 'Edit Loan' : 'Add New Loan'}</h3>
+            <div>
+                <label>Account Number:</label>
                 <input
                     type="text"
                     value={accountNumber}
                     onChange={e => setAccountNumber(e.target.value)}
                     required
-                    style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
                 />
             </div>
-            <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Loan Amount:</label>
+            <div>
+                <label>Loan Amount:</label>
                 <input
                     type="number"
                     value={loanAmount}
                     onChange={e => setLoanAmount(e.target.value)}
                     required
-                    style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
                 />
             </div>
-            <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Loan Type:</label>
-                <select
-                    value={loanType}
-                    onChange={e => setLoanType(e.target.value)}
-                    style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
-                >
+            <div>
+                <label>Loan Type:</label>
+                <select value={loanType} onChange={e => setLoanType(e.target.value)}>
                     <option value="Regular">Regular</option>
                     <option value="Emergency">Emergency</option>
                 </select>
             </div>
-            <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Loan Period (Months):</label>
+            <div>
+                <label>Loan Period (Months):</label>
                 <input
                     type="number"
                     value={loanPeriod}
                     onChange={e => setLoanPeriod(e.target.value)}
                     required
-                    style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
                 />
             </div>
-            <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Interest Rate:</label>
+            <div>
+                <label>Interest Rate:</label>
                 <input
                     type="number"
                     value={interestRate}
                     onChange={e => setInterestRate(e.target.value)}
                     required
-                    style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
                 />
             </div>
-            <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Service Fee:</label>
+            <div>
+                <label>Service Fee:</label>
                 <input
                     type="number"
                     value={serviceFee}
                     onChange={e => setServiceFee(e.target.value)}
                     required
-                    style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
                 />
             </div>
-            <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Penalty Rate:</label>
+            <div>
+                <label>Penalty Rate:</label>
                 <input
                     type="number"
                     value={penaltyRate}
                     onChange={e => setPenaltyRate(e.target.value)}
                     required
-                    style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
                 />
             </div>
-            <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Status:</label>
-                <select
-                    value={status}
-                    onChange={e => setStatus(e.target.value)}
-                    style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
-                >
+            <div>
+                <label>Status:</label>
+                <select value={status} onChange={e => setStatus(e.target.value)}>
                     <option value="Active">Active</option>
                     <option value="Pending">Pending</option>
                     <option value="Approved">Approved</option>
                     <option value="Completed">Completed</option>
                 </select>
             </div>
-            <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Purpose:</label>
-                <select
-                    value={purpose}
-                    onChange={e => setPurpose(e.target.value)}
-                    style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
-                >
+            <div>
+                <label>Purpose:</label>
+                <select value={purpose} onChange={e => setPurpose(e.target.value)}>
                     <option value="Education">Education</option>
                     <option value="Medical">Medical/Emergency</option>
                     <option value="House">House Construction & Repair</option>
@@ -157,12 +138,7 @@ const AddLoanForm = ({ onSubmit, existingLoan }) => {
                     <option value="Others">Others</option>
                 </select>
             </div>
-            <button
-                type="submit"
-                style={{ width: '100%', padding: '10px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-            >
-                {existingLoan ? 'Update Loan' : 'Submit Loan'}
-            </button>
+            <button type="submit">{existingLoan ? 'Update Loan' : 'Submit Loan'}</button>
         </form>
     );
 };

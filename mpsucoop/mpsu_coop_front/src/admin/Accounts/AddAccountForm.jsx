@@ -66,11 +66,9 @@ function AddAccountForm({ onClose, onAddAccount, members, fetchMembers }) {
               </option>
             ))}
           </select>
-          <div className={styles.iconContainer}>
-            <FaPlus onClick={openAddMemberWindow} title="Add Member" />
-            <FaEye onClick={openViewMemberWindow} title="View Member" />
-            <FaEdit onClick={openEditMemberWindow} title="Edit Member" />
-          </div>
+          <FaPlus onClick={openAddMemberWindow} title="Add Member" />
+          <FaEye onClick={openViewMemberWindow} title="View Member" />
+          <FaEdit onClick={openEditMemberWindow} title="Edit Member" />
         </div>
 
         <label>Share Capital:</label>
@@ -87,12 +85,9 @@ function AddAccountForm({ onClose, onAddAccount, members, fetchMembers }) {
           <option value="Inactive">Inactive</option>
         </select>
 
-        <div className={styles.buttonContainer}>
-          <button type="submit">Add Account</button>
-          <button type="button" onClick={onClose}>Close</button>
-        </div>
+        <button type="submit">Add Account</button>
+        <button type="button" onClick={onClose}>Close</button>
       </form>
-
     </div>
   );
 }

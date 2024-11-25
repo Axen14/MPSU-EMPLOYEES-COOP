@@ -15,7 +15,7 @@ from .serializers import (
     MemberSerializer, AccountSerializer, LoanSerializer, 
     PaymentScheduleSerializer, PaymentSerializer
 )
-
+from django.shortcuts import get_object_or_404
 
 class MemberViewSet(viewsets.ModelViewSet):
     queryset = Member.objects.all()
@@ -85,21 +85,22 @@ class LoanViewSet(viewsets.ModelViewSet):
         except Account.DoesNotExist:
             return Response({"error": "Account not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        # Check loan eligibility
-        if Loan.objects.filter(account_number=account_number, status__in=['Approved', 'Pending']).exists():
-            active_loan = Loan.objects.filter(account_number=account_number, status='Approved').last()
-            if active_loan and not active_loan.check_loan_eligibility_for_reloan():
-                return Response({"error": "50% of the existing loan must be paid off before re-applying."},
-                                status=status.HTTP_400_BAD_REQUEST)
+        
+        active_loan = Loan.objects.filter(account=account).first()
+        if active_loan and not active_loan.check_loan_eligibility_for_reloan():
+            return Response({
+                "error": "50% of the existing loan must be paid off before applying for a new loan."
+            }, status=status.HTTP_400_BAD_REQUEST)
 
+        
         loan_data = request.data
         try:
             with transaction.atomic():
                 new_loan = Loan.objects.create(**loan_data)
-                if new_loan.status == 'Approved':
-                    new_loan.generate_payment_schedule()
-                return Response({"status": "Loan created successfully", "control_number": new_loan.control_number},
-                                status=status.HTTP_201_CREATED)
+                return Response({
+                    "status": "Loan created successfully",
+                    "control_number": new_loan.control_number
+                }, status=status.HTTP_201_CREATED)
         except ValidationError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
@@ -147,12 +148,25 @@ class PaymentScheduleViewSet(viewsets.ModelViewSet):
         schedule.save()
         return Response({"status": "Payment schedule marked as paid"}, status=status.HTTP_200_OK)
 
-def get_queryset(self):
-    account_number = self.request.query_params.get('account_number')
-    if account_number:
-        return self.queryset.filter(loan__account__account_number=account_number)
-    return self.queryset
-    
+    def get_queryset(self):
+        account_number = self.request.query_params.get('account_number')
+        if account_number:
+            return self.queryset.filter(loan__account__account_number=account_number)
+        return self.queryset
+
+
+    @action(detail=True, methods=['post'], url_path='mark-paid')
+    def mark_as_paid(self, request, pk=None):
+        try:
+            payment_schedule = self.get_object()
+
+            payment_schedule.is_paid = True
+            payment_schedule.save()
+
+            return Response({'status': 'Payment marked as paid.'}, status=status.HTTP_200_OK)
+        except PaymentSchedule.DoesNotExist:
+            return Response({'error': 'Payment schedule not found.'}, status=status.HTTP_404_NOT_FOUND)
+
     
 class PaymentViewSet(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
@@ -191,24 +205,24 @@ class PaymentViewSet(viewsets.ModelViewSet):
 class ActiveLoansByAccountView(APIView):
     def get(self, request, account_number):
         loans = Loan.objects.filter(account_number=account_number)
+        print(f"Loans found: {loans}")
 
         active_loans_data = []
         payment_schedules_data = []
 
         for loan in loans:
             schedules = PaymentSchedule.objects.filter(loan=loan)
-            
             active = False
             schedule_data = []
             for schedule in schedules:
-                if not schedule.is_paid:  
+                if not schedule.is_paid:
                     active = True
                     schedule_data.append(PaymentScheduleSerializer(schedule).data)
 
             if active:
                 active_loans_data.append(LoanSerializer(loan).data)
                 payment_schedules_data.append(schedule_data)
-        
+
         if active_loans_data:
             return Response({
                 'active_loans': active_loans_data,

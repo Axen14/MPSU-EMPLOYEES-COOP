@@ -18,7 +18,6 @@ router.register(r'payments', PaymentViewSet, basename='payment')
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('active-loans/<str:account_number>/', ActiveLoansByAccountView.as_view(), name='active-loans-by-account'),
     
     
 
