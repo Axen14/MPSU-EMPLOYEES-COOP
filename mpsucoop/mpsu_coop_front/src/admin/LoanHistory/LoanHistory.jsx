@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import AddPaymentForm from '../Payments/AddPaymentForm'; // Import the AddPaymentForm
+import { AiOutlineUsergroupAdd } from "react-icons/ai";
+import { FaEdit, FaTrash, FaDollarSign, FaSearch } from 'react-icons/fa';
 
 const LoanManager = () => {
     const [loans, setLoans] = useState([]);
@@ -17,10 +19,11 @@ const LoanManager = () => {
     const [formVisible, setFormVisible] = useState(false);
     const [editingLoan, setEditingLoan] = useState(null);
     const [error, setError] = useState(null);
-    const [paymentFormVisible, setPaymentFormVisible] = useState(false); // State for showing the payment form
-    const [selectedLoanForPayment, setSelectedLoanForPayment] = useState(null); // Selected loan for payment
+    const [paymentFormVisible, setPaymentFormVisible] = useState(false);
+    const [selectedLoanForPayment, setSelectedLoanForPayment] = useState(null);
     const [showPrintButton, setShowPrintButton] = useState(false);
     const [newLoan, setNewLoan] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const BASE_URL = 'http://localhost:8000';
 
@@ -36,40 +39,59 @@ const LoanManager = () => {
     };
 
     useEffect(() => {
-        fetchLoans(); // Load loans on component mount
+        fetchLoans();
     }, []);
+
+    // Filter Loans based on the search query
+    const filteredLoans = loans.filter((loan) =>
+        `${loan.account}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        loan.loan_type.toString().includes(searchQuery)
+    );
 
     // Handle loan form submit (create or edit loan)
     const handleLoanSubmit = async (e) => {
         e.preventDefault();
         try {
-            let response;
             if (editingLoan) {
                 await axios.put(`${BASE_URL}/loans/${editingLoan.control_number}/`, loanData);
             } else {
-                response = await axios.post(`${BASE_URL}/loans/`, loanData);
-                setNewLoan(response.data); // Store the newly created loan details
-                setShowPrintButton(true); // Show the print button
+                const response = await axios.post(`${BASE_URL}/loans/`, loanData);
+                setNewLoan(response.data);
+                setShowPrintButton(true);
             }
-            fetchLoans(); // Refresh the loan list
-            // Do not reset form here yet
+            fetchLoans();
         } catch (err) {
             console.error('Error saving loan:', err);
             setError('Error saving loan');
         }
     };
-    
 
-    // Delete loan
-    const handleDeleteLoan = async (controlNumber) => {
+    const handleDeleteLoan = async (loan) => {
+        if (loan.status !== "Fully Paid") {
+            alert("This loan cannot be deleted as it is not fully paid.");
+            return;
+        }
+    
+        const confirmDelete = window.confirm(
+            `Are you sure you want to delete the loan with Control Number: ${loan.control_number}? This action cannot be undone.`
+        );
+    
+        if (!confirmDelete) return;
+    
         try {
-            await axios.delete(`${BASE_URL}/loans/${controlNumber}/`);
-            fetchLoans();
+            await axios.delete(`${BASE_URL}/loans/${loan.control_number}/`);
+            alert("Loan deleted successfully.");
+            fetchLoans(); // Refresh the loan list after deletion
         } catch (err) {
             console.error('Error deleting loan:', err);
+            alert(
+                `Failed to delete the loan. ${
+                    err.response?.data?.message || "Please try again later."
+                }`
+            );
         }
     };
-
+    
     // Edit loan
     const handleEditLoan = (loan) => {
         setLoanData(loan);
@@ -80,7 +102,7 @@ const LoanManager = () => {
     // Show payment form
     const handlePayLoan = (loan) => {
         setSelectedLoanForPayment(loan);
-        setPaymentFormVisible(true); // Show the payment form
+        setPaymentFormVisible(true);
     };
 
     // Reset the loan form
@@ -97,30 +119,64 @@ const LoanManager = () => {
         });
         setFormVisible(false);
         setEditingLoan(null);
-        setShowPrintButton(false); // Hide the print button
-        setNewLoan(null); // Clear the newly created loan details
-        setPaymentFormVisible(false); // Hide the payment form
-        setSelectedLoanForPayment(null); // Clear the selected loan for payment
+        setShowPrintButton(false);
+        setNewLoan(null);
+        setPaymentFormVisible(false);
+        setSelectedLoanForPayment(null);
     };
 
     return (
-        <div>
+        <div className="loan-manager">
             <h2>Loan Management</h2>
-
-            {/* Add/Edit Loan Button */}
+            {!formVisible && !paymentFormVisible && (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div style={{ position: 'relative', display: 'inline-block', width: '30%' }}>
+            <input
+                type="text"
+                placeholder="Search Loans"
+                title="Only letters and numbers are allowed."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                    padding: '7px 40px 10px 10px',
+                    fontSize: '16px',
+                    border: '2px solid black',
+                    borderRadius: '4px',
+                    width: '260px',
+                }}
+            />
+            <button
+                onClick={() => console.log('Search triggered')}
+                style={{
+                    position: 'absolute',
+                    right: '5px',
+                    top: '5%',
+                    fontSize: '16px', 
+                    cursor: 'pointer', 
+                    backgroundColor: '#007bff',
+                    color: 'black',
+                    border: 'none',
+                    borderRadius: '4px',
+                    padding: '10px',
+                    marginLeft: '18%'
+                }}
+                >
+                    <FaSearch
+                    />
+                </button>
+            </div>
+        </div>
+    )}
             <button onClick={() => setFormVisible(!formVisible)}>
-                {formVisible ? 'Cancel' : 'Add Loan'}
+                {formVisible ? 'Cancel' : <><AiOutlineUsergroupAdd /> Add Loan</>}
             </button>
 
-            {/* Display Add/Edit Loan Form */}
             {formVisible && (
                 <form onSubmit={handleLoanSubmit}>
                     <h3>{editingLoan ? 'Edit Loan' : 'Create Loan'}</h3>
-
-                    <label>Account Number:</label>
                     <input
                         type="text"
-                        name="account"
+                        placeholder="Account Number"
                         value={loanData.account}
                         onChange={(e) => setLoanData({ ...loanData, account: e.target.value })}
                         required
@@ -208,7 +264,7 @@ const LoanManager = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {loans.map((loan) => (
+                                {filteredLoans.map((loan) => (
                                     <tr key={loan.control_number}>
                                         <td>{loan.account}</td>
                                         <td>{loan.loan_amount}</td>
@@ -218,9 +274,9 @@ const LoanManager = () => {
                                         <td>{loan.status}</td>
                                         <td>{loan.purpose}</td>
                                         <td>
-                                            <button onClick={() => handleEditLoan(loan)}>Edit</button>
-                                            <button onClick={() => handleDeleteLoan(loan.control_number)}>Delete</button>
-                                            <button onClick={() => handlePayLoan(loan)}>Pay</button>
+                                            <button onClick={() => handleEditLoan(loan)}><FaEdit />Edit</button>
+                                            <button onClick={() => handleDeleteLoan(loan)}><FaTrash /> Delete</button>
+                                            <button onClick={() => handlePayLoan(loan)}><FaDollarSign />Pay</button>
                                         </td>
                                     </tr>
                                 ))}
@@ -260,13 +316,12 @@ const LoanManager = () => {
     </div>
 )}
 
+{paymentFormVisible && selectedLoanForPayment && (
+                <AddPaymentForm loan={selectedLoanForPayment} />
+            )}
 
-            {/* Payment Form */}
-            {paymentFormVisible && selectedLoanForPayment && (
-                <div>
-                    <AddPaymentForm loan={selectedLoanForPayment} />
-                    <button onClick={() => setPaymentFormVisible(false)}>Cancel</button>
-                </div>
+            {showPrintButton && newLoan && (
+                <button onClick={() => window.print()}>Print Loan Details</button>
             )}
         </div>
     );

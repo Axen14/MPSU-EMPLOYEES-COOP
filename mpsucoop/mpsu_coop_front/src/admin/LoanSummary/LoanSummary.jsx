@@ -1,19 +1,27 @@
 import React from 'react';
-import styles from './LoanSummary.css';
+import './LoanSummary.css';
 
-const loanTypes = ['REGULAR LOAN', 'REGULAR LOAN', 'REGULAR LOAN','REGULAR LOAN'];
+const loanTypes = [
+  { type: 'BORROWERS', amount: '500,000', left: 'Active:', right: 'Paid-off:' },
+  { type: 'NET TOTAL LOAN AMOUNT', amount: '500,000', left: 'Received:' },
+  { type: 'LOANS', amount: '500,000', left: 'Active:', right: 'Fully-paid:' }
+];
 
 function LoanSummary() {
   return (
-    <div className="loanSummary">
-      
-        {loanTypes.map((type, index) => (
-          <div key={index} className={styles.loanCard} style={{ display: 'inline-block', backgroundColor:'white', borderRadius: '10px'}}>
-            <h3 className={styles.loanType}>{type}</h3>
-            <p className={styles.loanAmount}>500,000</p>
-          </div>
-        ))}
-      
+    <div className="loan-summary-container">
+      {loanTypes.map((loan, index) => (
+        <div key={index} className="loan-card">
+          <h3 className="loans-type">{loan.type}</h3>
+          <p className="loan-amount">{loan.amount}</p>
+          {loan.left || loan.right ? (
+            <div className="loan-details">
+              {loan.left && <span className="loan-label">{loan.left}</span>}
+              {loan.right && <span className="loan-label">{loan.right}</span>}
+            </div>
+          ) : null}
+        </div>
+      ))}
     </div>
   );
 }

@@ -1,8 +1,6 @@
 import React from 'react';
-import './Loans.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
-
 
 const Loans = () => {
   const handleSearch = (event) => {
@@ -17,70 +15,110 @@ const Loans = () => {
         }
       });
       row.style.display = match ? '' : 'none';
-    });
+    }); 
   };
 
   return (
-    <div className="wrapper">
-      <div className="content-wrapper">
-        <section className="content-header">
-          <div className="container-fluid">
-            <div className="row mb-2">
-              <div className="col-sm-6">
-                <h1>Loans</h1>
-              </div>
+    <div style={{ fontFamily: 'Arial, sans-serif', margin: '0', padding: '0', backgroundColor: '#f4f7fc' }}>
+      <div style={{ maxWidth: '1200px', margin: '20px auto', padding: '20px' }}>
+        <section style={{ marginBottom: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <div>
+              <h1 style={{ fontSize: '2.5rem', color: '#333' }}>Loans</h1>
             </div>
           </div>
         </section>
 
-        <section className="content">
-          <div className="container-fluid">
-            <div className="row">
-              <div className="col-12">
-                <div className="card">
-                  <div className="card-body">
+        <section style={{ marginBottom: '20px' }}>
+          <div>
+            <div>
+              <div style={{ backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
+                <div style={{ padding: '20px' }}>
 
-                    <form className="search-form" id="search-form" onSubmit={(e) => e.preventDefault()}>
-                      <input
-                        type="text"
-                        className="search-input"
-                        id="search-query"
-                        placeholder="Find Something....."
-                        onChange={handleSearch}
-                      />
-                      <button type="submit" className="search-button">
-                        <FontAwesomeIcon icon={faSearch} />  {/* Use the FontAwesomeIcon component */}
-                      </button>
-                    </form>
+                  {/* Search Form */}
+                  <form onSubmit={(e) => e.preventDefault()} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+                    <input
+                      type="text"
+                      onChange={handleSearch}
+                      placeholder="Find Something....."
+                      style={{
+                        padding: '10px',
+                        fontSize: '1rem',
+                        border: '1px solid #ccc',
+                        borderRadius: '4px',
+                        width: '80%',
+                      }}
+                    />
+                    <button type="submit" style={{
+                      padding: '10px',
+                      backgroundColor: '#007bff',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      marginLeft: '10px',
+                    }}>
+                      <FontAwesomeIcon icon={faSearch} />
+                    </button>
+                  </form>
 
-                    <table className="table table-bordered table-striped">
-                      <thead>
-                        <tr>
-                          <th>DATE</th>
-                          <th>ACCOUNT NUMBER</th>
-                          <th>OR NUMBER</th>
-                          <th>LOAN TYPE</th>
-                          <th>BALANCE</th>
-                        </tr>
-                      </thead>
-                      <tbody id="table-body">
-                        <tr>
-                          <td>2024-09-01</td>
-                          <td>123456</td>
-                          <td>1001</td>
-                          <td>Emergency</td>
-                          <td>$5000</td>
-                        </tr>
-                        <tr>
-                          <td>2024-09-02</td>
-                          <td>654321</td>
-                          <td>1002</td>
-                          <td>Regular</td>
-                          <td>$10000</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
+                  {/* Table */}
+                  <table style={{
+                    width: '100%',
+                    borderCollapse: 'collapse',
+                    border: '1px solid #ddd',
+                  }}>
+                    <thead>
+                      <tr>
+                        <th style={{
+                          backgroundColor: '#007bff',
+                          color: 'white',
+                          padding: '12px',
+                          textAlign: 'left',
+                        }}>DATE</th>
+                        <th style={{
+                          backgroundColor: '#007bff',
+                          color: 'white',
+                          padding: '12px',
+                          textAlign: 'left',
+                        }}>ACCOUNT NUMBER</th>
+                        <th style={{
+                          backgroundColor: '#007bff',
+                          color: 'white',
+                          padding: '12px',
+                          textAlign: 'left',
+                        }}>OR NUMBER</th>
+                        <th style={{
+                          backgroundColor: '#007bff',
+                          color: 'white',
+                          padding: '12px',
+                          textAlign: 'left',
+                        }}>LOAN TYPE</th>
+                        <th style={{
+                          backgroundColor: '#007bff',
+                          color: 'white',
+                          padding: '12px',
+                          textAlign: 'left',
+                        }}>BALANCE</th>
+                      </tr>
+                    </thead>
+                    <tbody id="table-body">
+                      <tr>
+                        <td style={{ padding: '12px', textAlign: 'left' }}>2024-09-01</td>
+                        <td style={{ padding: '12px', textAlign: 'left' }}>123456</td>
+                        <td style={{ padding: '12px', textAlign: 'left' }}>1001</td>
+                        <td style={{ padding: '12px', textAlign: 'left' }}>Emergency</td>
+                        <td style={{ padding: '12px', textAlign: 'left' }}>$5000</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '12px', textAlign: 'left' }}>2024-09-02</td>
+                        <td style={{ padding: '12px', textAlign: 'left' }}>654321</td>
+                        <td style={{ padding: '12px', textAlign: 'left' }}>1002</td>
+                        <td style={{ padding: '12px', textAlign: 'left' }}>Regular</td>
+                        <td style={{ padding: '12px', textAlign: 'left' }}>$10000</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>

@@ -3,7 +3,11 @@ import axios from 'axios';
 import styles from './Accounts.css'; 
 import DepositWithdrawForm from '../DepositWithdrawForm/DepositWithdrawForm';
 // import AddAccountForm from './AddAccountForm';
-import { FaPlus } from 'react-icons/fa';
+import {AiOutlineUsergroupAdd} from "react-icons/ai";
+import { FaTrash } from "react-icons/fa6";
+import { PiHandDepositFill } from "react-icons/pi";
+import { BiMoneyWithdraw } from "react-icons/bi";
+
 
 function Accounts() {
   const [accounts, setAccounts] = useState([]);
@@ -111,11 +115,15 @@ function Accounts() {
                 <td>{getAccountHolderName(account.account_holder)}</td>
                 <td>{account.shareCapital}</td>
                 <td>{account.status}</td>
-                <td>
-                  <button onClick={() => handleDeleteAccount(account.account_number)}>Delete</button>
-                  <button onClick={() => openForm(account, 'deposit')}>Deposit</button>
-                  <button onClick={() => openForm(account, 'withdraw')}>Withdraw</button>
-                </td>
+                <button onClick={() => openForm(account, 'deposit')}>
+                  <PiHandDepositFill /> Deposit
+                </button>
+                <button onClick={() => openForm(account, 'withdraw')}>
+                  <BiMoneyWithdraw /> Withdraw
+                </button>
+                <button onClick={() => handleDeleteAccount(account.account_number)}>
+                  <FaTrash /> Delete
+                </button>
               </tr>
             ))}
           </tbody>

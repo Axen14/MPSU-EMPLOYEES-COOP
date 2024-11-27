@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './Members.css';
+import { AiOutlineUsergroupAdd } from "react-icons/ai";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaSearch } from 'react-icons/fa';  // Add search icon
 
 function Members() {
   const [members, setMembers] = useState([]);
@@ -10,6 +13,7 @@ function Members() {
   const [newMember, setNewMember] = useState({});
   const [editingMember, setEditingMember] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');  // State for search query
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -25,6 +29,12 @@ function Members() {
 
     fetchMembers();
   }, []);
+
+   // Filter members based on the search query
+   const filteredMembers = members.filter(member => 
+    `${member.first_name} ${member.last_name}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    member.accountN && member.accountN.toString().includes(searchQuery)  // Account number search
+  );
 
   const handleInputChange = (e, setter) => {
     const { name, value } = e.target;
@@ -106,7 +116,7 @@ function Members() {
             type="text"
             placeholder="Middle Name"
             name="middle_name"
-            value={editingMember?.middle_name ||newMember.middle_name || ''}
+            value={editingMember?.middle_name || newMember.middle_name || ''}
             onChange={e => handleInputChange(e, editingMember ? setEditingMember : setNewMember)}
           />          
           <input
@@ -117,40 +127,40 @@ function Members() {
             onChange={e => handleInputChange(e, editingMember ? setEditingMember : setNewMember)}
           />
           <input
-                    type="email"
-                    placeholder="Email"
-                    name="email"
-                    value={editingMember?.email || newMember.email || ''}
-                    onChange={e => handleInputChange(e, editingMember ? setEditingMember : setNewMember)}
-                />
-                <input
-                    type="date"
-                    placeholder="Birth Date"
-                    name="birth_date"
-                    value={editingMember?.birth_date || newMember.birth_date || ''}
-                    onChange={e => handleInputChange(e, editingMember ? setEditingMember : setNewMember)}
-                />
-                <input
-                    type="text"
-                    placeholder="Phone Number"
-                    name="phone_number"
-                    value={editingMember?.phone_number || newMember.phone_number || ''}
-                    onChange={e => handleInputChange(e, editingMember ? setEditingMember : setNewMember)}
-                />
-                <input
-                    type="text"
-                    placeholder="Religion"
-                    name="religion"
-                    value={editingMember?.religion || newMember.religion || ''}
-                    onChange={e => handleInputChange(e, editingMember ? setEditingMember : setNewMember)}
-                />
-                <input
-                    type="text"
-                    placeholder="Address"
-                    name="address"
-                    value={editingMember?.address || newMember.address || ''}
-                    onChange={e => handleInputChange(e, editingMember ? setEditingMember : setNewMember)}
-                />
+            type="email"
+            placeholder="Email"
+            name="email"
+            value={editingMember?.email || newMember.email || ''}
+            onChange={e => handleInputChange(e, editingMember ? setEditingMember : setNewMember)}
+          />
+          <input
+            type="date"
+            placeholder="Birth Date"
+            name="birth_date"
+            value={editingMember?.birth_date || newMember.birth_date || ''}
+            onChange={e => handleInputChange(e, editingMember ? setEditingMember : setNewMember)}
+          />
+          <input
+            type="text"
+            placeholder="Phone Number"
+            name="phone_number"
+            value={editingMember?.phone_number || newMember.phone_number || ''}
+            onChange={e => handleInputChange(e, editingMember ? setEditingMember : setNewMember)}
+          />
+          <input
+            type="text"
+            placeholder="Religion"
+            name="religion"
+            value={editingMember?.religion || newMember.religion || ''}
+            onChange={e => handleInputChange(e, editingMember ? setEditingMember : setNewMember)}
+          />
+          <input
+            type="text"
+            placeholder="Address"
+            name="address"
+            value={editingMember?.address || newMember.address || ''}
+            onChange={e => handleInputChange(e, editingMember ? setEditingMember : setNewMember)}
+          />
           <button onClick={editingMember ? handleEditMember : handleAddMember}>
             {editingMember ? 'Save Changes' : 'Submit'}
           </button>
@@ -160,11 +170,41 @@ function Members() {
         <>
           <div className={styles.tableHeader}>
             <h2 className={styles.membersTitle}>MEMBERS</h2>
+            <div className={styles.searchBar} style={{ display: 'flex', alignItems: 'center' }}>
+            <input
+              type="text"
+              placeholder="Search Members"
+              title="Only letters and numbers are allowed."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              style={{
+                padding: '7px',
+                fontSize: '16px',
+                border: '2px solid black',
+                borderRadius: '4px',
+                width: '260px',
+                marginRight: '10px' 
+              }}  
+            />
+            <FaSearch 
+              style={{
+                position: 'absolute',
+                fontSize: '16px', 
+                cursor: 'pointer', 
+                backgroundColor: '#007bff',
+                color: 'black',
+                border: 'none',
+                borderRadius: '4px',
+                padding: '10px',
+                marginLeft: '18%'
+              }} 
+            />
+          </div>
             <button
               className={styles.addButton}
               onClick={() => setShowAddForm(true)}
             >
-              Add Member
+              <AiOutlineUsergroupAdd /> Add Member
             </button>
           </div>
 
@@ -179,19 +219,15 @@ function Members() {
               </tr>
             </thead>
             <tbody>
-              {members.map(member => (
+              {filteredMembers.map(member => (
                 <tr key={member.memId} style={{ textAlign: 'center' }}>
                   <td>{member.accountN || 'No Account'}</td>
-                  <td>
-                    {member.first_name} {member.last_name}
-                  </td>
+                  <td>{member.first_name} {member.last_name}</td>
                   <td>{member.email}</td>
                   <td>{member.phone_number}</td>
                   <td>
-                    <button onClick={() => handleStartEdit(member)}>Edit</button>
-                    <button onClick={() => handleDeleteMember(member.memId)}>
-                      Delete
-                    </button>
+                    <button onClick={() => handleStartEdit(member)}><FaEdit /> Edit</button>
+                    <button onClick={() => handleDeleteMember(member.memId)}><FaTrash /> Delete</button>
                   </td>
                 </tr>
               ))}

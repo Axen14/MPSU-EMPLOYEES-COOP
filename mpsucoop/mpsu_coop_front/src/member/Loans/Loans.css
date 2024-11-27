@@ -1,58 +1,78 @@
-body {
-    font-family: Arial, sans-serif;
-  }
-  
-  .content-wrapper {
-    padding: 40px;
-    background-color: black;
-    color: white;
-    margin: 0;
-    max-width: 84%;
-  }
-  
-  .card {
-    background-color: gray;
-    margin-bottom: 20px;
-    border: 2px solid black;
-    border-radius: 0.25rem;
-    height: 400px;
-  }
-  
-  .card-body {
-    padding: 20px;
-    color: black;
-  }
-  
-  .search-form {
-    display: flex;
-    align-items: center;
-  }
-  
-  .search-input {
-    padding: 5px;
-    border: 2px solid black;
-    border-radius: 15px;
-    width: 200px;
-    margin-left: 930px;
-  }
-  
-  .search-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: black;
-    font-size: 20px;
-    margin-left: -40px;
-  }
-  
-  .table {
-    width: 100%;
-    border-collapse: collapse;
-    border: 2px solid black;
-  }
-  
-  th {
-    background-color: gray;
-    color: black;
-  }
-  
+
+.wrapper {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+}
+
+.content-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.content-header {
+  margin-bottom: 20px;
+}
+
+.heading {
+  font-size: 40px;
+  color: white;
+  text-align: left;
+  margin-top: auto;
+}
+
+/* Search form styles */
+.search-form {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.search-input {
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #000000;
+  border-radius: 4px;
+  width: 50%;
+  margin-left: 45%;
+}
+
+.search-button {
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: 1px solid #000000;
+  border-radius: 4px;
+  cursor: pointer;
+
+}
+
+.search-button:hover {
+  background-color: #0056b3;
+}
+
+.card {
+  background-color: gray; 
+  border-radius: 8px;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 2px solid black;
+}
+
+.table-header {
+  background-color: black;
+  color: white;
+  padding: 12px;
+  text-align: left;
+}
+
+.table-cell {
+  padding: 12px;
+  text-align: left;
+}

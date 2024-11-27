@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; 
-import './Account.css';
+import axios from 'axios';
 
 const Account = () => {
-  const [accounts, setAccounts] = useState([]); 
-  const [loading, setLoading] = useState(true); 
-  const [error, setError] = useState(null); 
+  const [accounts, setAccounts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/accounts/'); 
+        const response = await axios.get('http://localhost:8000/accounts/');
         setAccounts(response.data);
       } catch (err) {
         setError(err);
@@ -23,16 +21,16 @@ const Account = () => {
     fetchAccounts();
   }, []);
 
-  if (loading) return <div>Loading...</div>; 
-  if (error) return <div>Error: {error.message}</div>; 
+  if (loading) return <div style={{ textAlign: 'center', padding: '20px', fontSize: '18px' }}>Loading...</div>;
+  if (error) return <div style={{ textAlign: 'center', color: 'red', padding: '20px', fontSize: '18px' }}>Error: {error.message}</div>;
 
   return (
-    <div className="content-wrapper">
+    <div style={{fontFamily: 'Arial, sans-serif', margin: 0, margin: 0 }}>
       <section className="content-header">
         <div className="container-fluid">
           <div className="row mb-2">
             <div className="col-sm-6">
-              <h1>Account</h1>
+              <h1 style={{ fontSize: '40px', color: 'black', textAlign: 'left', marginTop: '70px' }}>Account</h1>
             </div>
           </div>
         </div>
@@ -41,30 +39,32 @@ const Account = () => {
         <div className="container-fluid">
           <div className="row">
             <div className="col-12">
-              <div className="card">
+              <div className="card" style={{ borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
                 <div className="card-body">
-                  <table id="example1" className="table table-bordered table-striped">
+                  <table id="example1" className="table table-bordered table-striped" style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
-                      <tr>
-                        <th>DATE</th>
-                        <th>ACCOUNT NUMBER</th>
-                        <th>LOAN TYPE</th>
-                        <th>SHARE CAPITAL</th>
+                      <tr style={{ backgroundColor: '#f1f1f1' }}>
+                        <th style={{ padding: '10px', textAlign: 'left' }}>DATE</th>
+                        <th style={{ padding: '10px', textAlign: 'left' }}>ACCOUNT NUMBER</th>
+                        <th style={{ padding: '10px', textAlign: 'left' }}>LOAN TYPE</th>
+                        <th style={{ padding: '10px', textAlign: 'left' }}>SHARE CAPITAL</th>
                       </tr>
                     </thead>
                     <tbody>
                       {accounts.length > 0 ? (
                         accounts.map((account) => (
                           <tr key={account.account_number}>
-                            <td>{new Date(account.loan_date).toLocaleDateString()}</td> 
-                            <td>{account.account_number}</td>
-                            <td>{account.type}</td> 
-                            <td>{account.shareCapital.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td> 
+                            <td style={{ padding: '10px', textAlign: 'left' }}>{new Date(account.loan_date).toLocaleDateString()}</td>
+                            <td style={{ padding: '10px', textAlign: 'left' }}>{account.account_number}</td>
+                            <td style={{ padding: '10px', textAlign: 'left' }}>{account.type}</td>
+                            <td style={{ padding: '10px', textAlign: 'left' }}>
+                              {account.shareCapital.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                            </td>
                           </tr>
                         ))
                       ) : (
                         <tr>
-                          <td colSpan="4">No accounts found.</td>
+                          <td colSpan="4" style={{ textAlign: 'center', padding: '20px' }}>No accounts found.</td>
                         </tr>
                       )}
                     </tbody>

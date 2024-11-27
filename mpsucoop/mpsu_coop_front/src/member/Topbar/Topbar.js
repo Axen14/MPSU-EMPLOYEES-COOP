@@ -9,11 +9,11 @@ const Topbar = () => {
     <div className="Topbar">
       <div className="nav-header">MPSPC CREDIT COOP</div>
       <ul className="nav-Topbar">
-      <li className="nav-item">
+        <li className="nav-item">
           <Link to="/Home" className="nav-link">
             <FontAwesomeIcon icon={faTachometerAlt} className="nav-icon" />
             <p>Dashboard</p>
-            </Link>
+          </Link>
         </li>
         <li className="nav-item">
           <Link to="/Account" className="nav-link">
@@ -34,7 +34,7 @@ const Topbar = () => {
           </Link>
         </li>
         <li className="nav-item">
-          <Link to="/src/login" className="nav-link">
+          <Link to="/login" className="nav-link">
             <FontAwesomeIcon icon={faPowerOff} className="nav-icon" />
             <p>Logout</p>
           </Link>

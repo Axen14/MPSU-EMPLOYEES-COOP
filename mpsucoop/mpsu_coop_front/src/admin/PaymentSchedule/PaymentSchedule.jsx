@@ -1,23 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { IoArrowBackCircleSharp } from "react-icons/io5";
+import { FaDollarSign } from "react-icons/fa";
 
 const PaymentSchedule = () => {
   const [accountSummaries, setAccountSummaries] = useState([]);
+  const [filteredSummaries, setFilteredSummaries] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [schedules, setSchedules] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(""); // Search term for filtering
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [accountDetails, setAccountDetails] = useState(null);
 
   const fetchAccountSummaries = async () => {
     setLoading(true);
-    setError('');
+    setError("");
     try {
-      const response = await axios.get('http://127.0.0.1:8000/payment-schedules/summaries/');
+      const response = await axios.get(
+        "http://127.0.0.1:8000/payment-schedules/summaries/"
+      );
       setAccountSummaries(response.data);
+      setFilteredSummaries(response.data); // Initialize the filtered list
     } catch (err) {
-      console.error('Error fetching account summaries:', err);
-      setError('Failed to fetch account summaries.');
+      console.error("Error fetching account summaries:", err);
+      setError("Failed to fetch account summaries.");
     } finally {
       setLoading(false);
     }
@@ -25,7 +32,7 @@ const PaymentSchedule = () => {
 
   const fetchPaymentSchedules = async (accountNumber) => {
     setLoading(true);
-    setError('');
+    setError("");
     try {
       const response = await axios.get(
         `http://127.0.0.1:8000/payment-schedules/?account_number=${accountNumber}`
@@ -33,14 +40,16 @@ const PaymentSchedule = () => {
       setSchedules(response.data);
       setSelectedAccount(accountNumber);
 
- 
       const memberResponse = await axios.get(
         `http://127.0.0.1:8000/members/?account_number=${accountNumber}`
       );
       setAccountDetails(memberResponse.data[0]);
     } catch (err) {
-      console.error('Error fetching schedules or account details:', err.response ? err.response.data : err.message);
-      setError('Failed to fetch payment schedules or account details.');
+      console.error(
+        "Error fetching schedules or account details:",
+        err.response ? err.response.data : err.message
+      );
+      setError("Failed to fetch payment schedules or account details.");
     } finally {
       setLoading(false);
     }
@@ -50,33 +59,55 @@ const PaymentSchedule = () => {
     setLoading(true);
     try {
       if (!schedule.id) {
-        console.error('Schedule ID is undefined');
+        console.error("Schedule ID is undefined");
         return;
       }
-      await axios.post(`http://127.0.0.1:8000/payment-schedules/${schedule.id}/mark-paid/`
-    );
+      await axios.post(
+        `http://127.0.0.1:8000/payment-schedules/${schedule.id}/mark-paid/`
+      );
 
       setSchedules((prevSchedules) =>
         prevSchedules.map((s) =>
-          s.id === schedule.id ? { ...s, is_paid: true, status: 'Paid' } : s
+          s.id === schedule.id ? { ...s, is_paid: true, status: "Paid" } : s
         )
       );
-
     } catch (err) {
-      console.error('Error marking schedule as paid:', err.response ? err.response.data : err.message);
-      setError('Failed to mark schedule as paid.');
+      console.error(
+        "Error marking schedule as paid:",
+        err.response ? err.response.data : err.message
+      );
+      setError("Failed to mark schedule as paid.");
     } finally {
       setLoading(false);
     }
   };
 
   const calculateRemainingBalance = () => {
-    return schedules.reduce((total, schedule) => {
-      if (!schedule.is_paid || schedule.status === 'Pending') {
-        return total + parseFloat(schedule.balance || 0);
-      }
-      return total;
-    }, 0).toFixed(2);
+    return schedules
+      .reduce((total, schedule) => {
+        if (!schedule.is_paid || schedule.status === "Pending") {
+          return total + parseFloat(schedule.balance || 0);
+        }
+        return total;
+      }, 0)
+      .toFixed(2);
+  };
+
+  // Filter summaries based on search term
+  const handleSearch = (event) => {
+    const searchValue = event.target.value.toLowerCase();
+    setSearchTerm(searchValue);
+    setFilteredSummaries(
+      accountSummaries.filter(
+        (summary) =>
+          summary.account_number.toLowerCase().includes(searchValue) ||
+          (summary.next_due_date &&
+            new Date(summary.next_due_date)
+              .toLocaleDateString()
+              .toLowerCase()
+              .includes(searchValue))
+      )
+    );
   };
 
   useEffect(() => {
@@ -84,14 +115,21 @@ const PaymentSchedule = () => {
   }, []);
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p style={{ color: 'red' }}>{error}</p>;
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
 
   return (
     <div className="payment-schedule-container">
       {!selectedAccount ? (
         <>
           <h2>Ongoing Payment Schedules</h2>
-          {accountSummaries.length > 0 ? (
+          <input
+            type="text"
+            placeholder="Search by Account Number"
+            value={searchTerm}
+            onChange={handleSearch}
+            style={{ marginBottom: "5px", padding: "5px", width: "100%" }}
+          />
+          {filteredSummaries.length > 0 ? (
             <table className="account-summary-table">
               <thead>
                 <tr>
@@ -101,14 +139,18 @@ const PaymentSchedule = () => {
                 </tr>
               </thead>
               <tbody>
-                {accountSummaries.map((summary, index) => (
+                {filteredSummaries.map((summary, index) => (
                   <tr
                     key={`${summary.account_number}-${index}`}
                     onClick={() => fetchPaymentSchedules(summary.account_number)}
-                    style={{ cursor: 'pointer' }}
+                    style={{ cursor: "pointer" }}
                   >
-                    <td>{summary.account_number || 'N/A'}</td>
-                    <td>{summary.next_due_date ? new Date(summary.next_due_date).toLocaleDateString() : 'No Due Date'}</td>
+                    <td>{summary.account_number || "N/A"}</td>
+                    <td>
+                      {summary.next_due_date
+                        ? new Date(summary.next_due_date).toLocaleDateString()
+                        : "No Due Date"}
+                    </td>
                     <td>₱ {summary.total_balance?.toFixed(2)}</td>
                   </tr>
                 ))}
@@ -120,13 +162,24 @@ const PaymentSchedule = () => {
         </>
       ) : (
         <>
-          <button onClick={() => setSelectedAccount(null)}>Back to List</button>
+          <button onClick={() => setSelectedAccount(null)}>
+            <IoArrowBackCircleSharp />
+            Back to List
+          </button>
           {accountDetails && (
             <>
               <h3>Payment Schedule For:</h3>
-              <p><strong>Name:</strong> {accountDetails.first_name} {accountDetails.last_name}</p>
-              <p><strong>Account Number:</strong> {selectedAccount}</p>
-              <p><strong>Remaining Balance:</strong> ₱ {calculateRemainingBalance()}</p>
+              <p>
+                <strong>Name:</strong> {accountDetails.first_name}{" "}
+                {accountDetails.last_name}
+              </p>
+              <p>
+                <strong>Account Number:</strong> {selectedAccount}
+              </p>
+              <p>
+                <strong>Remaining Balance:</strong> ₱{" "}
+                {calculateRemainingBalance()}
+              </p>
             </>
           )}
 
@@ -146,17 +199,34 @@ const PaymentSchedule = () => {
               <tbody>
                 {schedules.map((schedule, index) => (
                   <tr key={`${schedule.loan}-${schedule.due_date}-${index}`}>
-                    <td>₱ {(parseFloat(schedule.principal_amount) || 0).toFixed(2)}</td>
-                    <td>₱ {(parseFloat(schedule.interest_amount) || 0).toFixed(2)}</td>
-                    <td>₱ {(parseFloat(schedule.payment_amount) || 0).toFixed(2)}</td>
-                    <td>{new Date(schedule.due_date).toLocaleDateString()}</td>
-                    <td>₱ {(parseFloat(schedule.balance) || 0).toFixed(2)}</td>
-                    <td style={{ color: schedule.is_paid ? 'green' : 'red' }}>
-                      {schedule.is_paid ? 'Paid' : 'Pending'}
+                    <td>
+                      ₱ {(parseFloat(schedule.principal_amount) || 0).toFixed(2)}
+                    </td>
+                    <td>
+                      ₱ {(parseFloat(schedule.interest_amount) || 0).toFixed(2)}
+                    </td>
+                    <td>
+                      ₱ {(parseFloat(schedule.payment_amount) || 0).toFixed(2)}
+                    </td>
+                    <td>
+                      {new Date(schedule.due_date).toLocaleDateString()}
+                    </td>
+                    <td>
+                      ₱ {(parseFloat(schedule.balance) || 0).toFixed(2)}
+                    </td>
+                    <td
+                      style={{
+                        color: schedule.is_paid ? "green" : "red",
+                      }}
+                    >
+                      {schedule.is_paid ? "Paid" : "Pending"}
                     </td>
                     <td>
                       {!schedule.is_paid && (
-                        <button onClick={() => markAsPaid(schedule)}>Pay</button>
+                        <button onClick={() => markAsPaid(schedule)}>
+                          <FaDollarSign />
+                          Pay
+                        </button>
                       )}
                     </td>
                   </tr>

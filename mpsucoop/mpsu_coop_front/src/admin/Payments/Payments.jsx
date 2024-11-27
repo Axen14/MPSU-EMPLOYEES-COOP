@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import AddPaymentForm from './AddPaymentForm';
 import './Payments.css';
+import {AiOutlineUsergroupAdd} from "react-icons/ai";
 
 const Payments = () => {
   const [payments, setPayments] = useState([]);
@@ -34,7 +35,7 @@ const Payments = () => {
           {loading && <p>Loading payments...</p>}
           {error && <p style={{ color: 'red' }}>{error}</p>}
 
-          <button onClick={() => setShowAddPaymentForm(true)}>Add Payment</button>
+          <button onClick={() => setShowAddPaymentForm(true)}><AiOutlineUsergroupAdd />Add Payment</button>
 
           {payments.length > 0 ? (
             <table className="payments-table">
