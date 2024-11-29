@@ -5,6 +5,8 @@ from django.utils import timezone
 from django.conf import settings
 from django.core.validators import MinValueValidator 
 import uuid
+from datetime import date
+from django.utils.timezone import now
 import math
 from django.db.models import Sum
 from django.core.exceptions import ValidationError
@@ -96,10 +98,45 @@ class Loan(models.Model):
     service_fee = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal('0.00'))
     penalty_rate = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal('2.00'))
     purpose = models.CharField(max_length=200, choices=PURPOSE_CHOICES, default='Education')
+    annual_interest = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal('0.00')) 
 
 
 
+    def save(self, *args, **kwargs):
+        self.calculate_service_fee()
+        if not self.due_date:
+            self.due_date = self.calculate_due_date()
+        super().save(*args, **kwargs)
 
+    def calculate_service_fee(self):
+        """
+        Calculates the service fee based on the loan amount and term duration.
+        """
+        total_years = self.loan_period if self.loan_period_unit == 'years' else self.loan_period / 12
+        rate = self.get_service_fee_rate(total_years)
+        self.service_fee = self.loan_amount * rate
+
+    def get_service_fee_rate(self, total_years):
+        """
+        Returns the service fee rate based on the loan's total term.
+        """
+        if total_years <= 1:
+            return 0.01
+        elif total_years <= 2:
+            return 0.015
+        elif total_years <= 3:
+            return 0.02
+        else:
+            return 0.025
+
+    def calculate_due_date(self):
+        """
+        Calculates the due date based on the loan period and start date.
+        """
+        if self.loan_period_unit == 'months':
+            return self.loan_date + timedelta(days=self.loan_period * 30)
+        else:
+            return self.loan_date + timedelta(days=self.loan_period * 365)
 
     def save(self, *args, **kwargs):
         if not self.interest_rate:
@@ -129,18 +166,18 @@ class Loan(models.Model):
         else:
             raise ValueError("Invalid loan_period_unit. Must be 'months' or 'years'.")
 
-        total_periods = total_months * 2  # Bi-monthly payments (two per month)
-        bi_monthly_rate = (self.interest_rate / Decimal('100')) / 24  # Bi-monthly interest rate
+        total_periods = total_months * 2  
+        bi_monthly_rate = (self.interest_rate / Decimal('100')) / 24  
 
-        # Calculate the total amount due, including interest
+        
         loan_principal = self.loan_amount
         total_interest = loan_principal * bi_monthly_rate * total_periods
         total_amount_due = loan_principal + total_interest
         bi_monthly_payment = total_amount_due / Decimal(total_periods)
 
-        # Generate payment schedule
+        
         for period in range(total_periods):
-            due_date = self.loan_date + timedelta(days=(period * 15))  # Bi-monthly intervals (15 days apart)
+            due_date = self.loan_date + timedelta(days=(period * 15))  # Bi-monthly  (every 15 days )
             principal_payment = loan_principal / Decimal(total_periods)
             interest_payment = total_interest / Decimal(total_periods)
             balance_due = total_amount_due - (bi_monthly_payment * (period + 1))
@@ -163,6 +200,7 @@ class PaymentSchedule(models.Model):
     principal_amount = models.DecimalField(max_digits=15, decimal_places=2)
     interest_amount = models.DecimalField(max_digits=15, decimal_places=2)
     payment_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0.0)
+    service_fee_component = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     due_date = models.DateField()
     balance = models.DecimalField(max_digits=15, decimal_places=2)
     is_paid = models.BooleanField(default=False)
@@ -171,48 +209,48 @@ class PaymentSchedule(models.Model):
         return f"Payment for Loan {self.loan.control_number} on {self.due_date}"
 
     def mark_as_paid(self):
-        self.is_paid = True
-        self.save()
+        if self.balance <= Decimal('0.00'):       
+            self.is_paid = True
+            self.save()
+    def calculate_service_fee_component(self):
+        """
+        Calculates the service fee component based on loan age and distributes it across payments.
+        """
+        loan_age_years = (date.today() - self.loan.loan_date).days // 365
+        rate = Decimal(self.loan.get_service_fee_rate(loan_age_years))
+        total_service_fee = self.loan.loan_amount * rate
+        self.service_fee_component = total_service_fee / (self.loan.loan_period * 2)
 
+    def save(self, *args, **kwargs):
+        self.calculate_service_fee_component()
+        super().save(*args, **kwargs)
+
+    def calculate_payment_amount(self):
+        """
+        Calculates the total amount due including service and admin fees.
+        """
+        self.calculate_service_fee_component()
+        self.payment_amount = self.principal_amount + self.service_fee_component + self.interest_amount
+
+    def save(self, *args, **kwargs):
+        self.calculate_payment_amount()
+        super().save(*args, **kwargs)
+    def __str__(self):
+        return f"Payment Schedule for {self.account_number}"
 
 class Payment(models.Model):
     OR = models.CharField(max_length=50, primary_key=True, unique=True)
-    loan = models.ForeignKey(Loan, on_delete=models.CASCADE)
-    payment_amount = models.DecimalField(max_digits=15, decimal_places=2)
-    payment_date = models.DateField(auto_now_add=True)
-    method = models.CharField(max_length=50, choices=[('Cash', 'Cash'), ('Bank Transfer', 'Bank Transfer')], default='Unknown')
-
-    penalty = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal('0.00'))
-    admin_cost = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('10.00'))
-    payment_schedule = models.ForeignKey(PaymentSchedule, on_delete=models.CASCADE, related_name='paymentsched')
-
+    payment_schedule = models.ForeignKey(PaymentSchedule, on_delete=models.CASCADE, related_name='payments')
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default = 0)
+    date = models.DateField(default=now)
+    method = models.CharField(max_length=50, choices=[('Cash', 'Cash'), ('Bank Transfer', 'Bank Transfer')])
 
     def save(self, *args, **kwargs):
-        if self.loan.status == 'Approved':
-            if self.payment_date and self.loan.due_date:
-                if self.payment_date > self.loan.due_date:
-                    self.penalty = self.loan.loan_amount * Decimal('0.02')  
-                else:
-                    self.penalty = Decimal('0.00')
-        else:
-            logger.warning(f"Either payment_date or loan.due_date is None for OR: {self.OR}")
-        
-        if not self.OR or self.OR == 'DEFAULT_Payment_NUMBER':
-            self.OR = str(uuid.uuid4())
-
-
-        
-        if self.payment_amount is None:
-            self.payment_amount = self.payment_schedule.payment_amount 
-        
-       
-        self.payment_schedule.is_paid = True
-        self.payment_schedule.save()
-
+        if self.amount > self.payment_schedule.balance:
+            raise ValidationError("Payment amount exceeds the remaining balance.")
         super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"Payment {self.OR} for Loan {self.loan.control_number} on {self.payment_date.strftime('%Y-%m-%d')}"
+        self.payment_schedule.balance -= self.amount
+        self.payment_schedule.mark_as_paid()
     
 # Create Notifications pala if kaya
 # Ledger 

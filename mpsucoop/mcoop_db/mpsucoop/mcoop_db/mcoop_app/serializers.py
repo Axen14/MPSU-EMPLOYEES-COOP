@@ -41,7 +41,7 @@ class MemberSerializer(serializers.ModelSerializer):
 class PaymentScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaymentSchedule
-        fields = ['loan', 'principal_amount', 'interest_amount', 'payment_amount', 
+        fields = ['id', 'loan', 'principal_amount', 'interest_amount', 'payment_amount', 
                   'due_date', 'balance', 'is_paid']
 
 class LoanSerializer(serializers.ModelSerializer):
@@ -78,29 +78,32 @@ class LoanSerializer(serializers.ModelSerializer):
 
 
 class PaymentSerializer(serializers.ModelSerializer):
-    service_fee = serializers.DecimalField(max_digits=15, decimal_places=2, read_only=True)
-    penalty = serializers.DecimalField(max_digits=15, decimal_places=2, read_only=True)
-    cisp = serializers.DecimalField(max_digits=15, decimal_places=2, read_only=True)
-    payment_schedule = serializers.PrimaryKeyRelatedField(queryset=PaymentSchedule.objects.all())
-    payment_amount = serializers.DecimalField(max_digits=15, decimal_places=2, read_only=True)
+        class Meta:
+            model = Payment
+            fields = '__all__'
+    # service_fee = serializers.DecimalField(max_digits=15, decimal_places=2, read_only=True)
+    # penalty = serializers.DecimalField(max_digits=15, decimal_places=2, read_only=True)
+    # cisp = serializers.DecimalField(max_digits=15, decimal_places=2, read_only=True)
+    # payment_schedule = serializers.PrimaryKeyRelatedField(queryset=PaymentSchedule.objects.all())
+    # payment_amount = serializers.DecimalField(max_digits=15, decimal_places=2, read_only=True)
 
-    class Meta:
-        model = Payment
-        fields = ['OR', 'loan', 'payment_amount', 'payment_date', 'method', 'penalty', 
-                  'admin_cost', 'cisp', 'payment_schedule', 'service_fee']
-        read_only_fields = ['OR', 'service_fee', 'penalty', 'cisp', 'admin_cost','payment_amount',]  
+    # class Meta:
+    #     model = Payment
+    #     fields = ['OR', 'loan', 'payment_amount', 'payment_date', 'method', 'penalty', 
+    #               'admin_cost', 'cisp', 'payment_schedule', 'service_fee']
+    #     read_only_fields = ['OR', 'service_fee', 'penalty', 'cisp', 'admin_cost','payment_amount',]  
 
-    def create(self, validated_data):
-        payment_schedule = validated_data.get('payment_schedule')
-        payment = Payment.objects.create(**validated_data)
-        payment.save()  
+    # def create(self, validated_data):
+    #     payment_schedule = validated_data.get('payment_schedule')
+    #     payment = Payment.objects.create(**validated_data)
+    #     payment.save()  
         
 
-        if payment_schedule and payment.payment_amount >= payment_schedule.payment_amount:
-            payment_schedule.is_paid = True
-            payment_schedule.save()
+    #     if payment_schedule and payment.payment_amount >= payment_schedule.payment_amount:
+    #         payment_schedule.is_paid = True
+    #         payment_schedule.save()
 
-        return payment
+    #     return payment
 
 
 

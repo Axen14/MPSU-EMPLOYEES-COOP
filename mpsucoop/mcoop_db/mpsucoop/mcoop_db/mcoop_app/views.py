@@ -1,9 +1,10 @@
-from rest_framework import generics, status, viewsets
+from rest_framework import generics, status, viewsets, filters
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from decimal import Decimal
+from django.http import JsonResponse
 import uuid
 from django.db.models import Sum, Min, F, OuterRef, Subquery
 from rest_framework.decorators import api_view
@@ -16,11 +17,23 @@ from .serializers import (
     PaymentScheduleSerializer, PaymentSerializer
 )
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+import django_filters
+
+class MemberFilter(django_filters.FilterSet):
+    account_number = django_filters.CharFilter(field_name='accountN__account_number', lookup_expr='exact')
+
+    class Meta:
+        model = Member
+        fields = ['account_number']  # This is the filter field
 
 class MemberViewSet(viewsets.ModelViewSet):
     queryset = Member.objects.all()
     serializer_class = MemberSerializer
     permission_classes = [AllowAny]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_class = MemberFilter  # Use the custom filter set here
+    search_fields = ['accountN__account_number']  # For partial searching
 
 
 class AccountViewSet(viewsets.ModelViewSet):
@@ -111,7 +124,30 @@ class LoanViewSet(viewsets.ModelViewSet):
         loan = self.get_object()
         payment_schedule = PaymentSchedule.objects.filter(loan=loan)
         return Response(PaymentScheduleSerializer(payment_schedule, many=True).data)
-
+    def create(self, request, *args, **kwargs):
+        """
+        Override create to calculate service fee and other fields if needed.
+        """
+        loan_data = request.data
+        loan_amount = float(loan_data.get('loan_amount', 0))
+        loan_period = int(loan_data.get('loan_period', 0))
+        
+        #  Calculate service fee
+        if loan_period <= 12:
+            service_fee = loan_amount * 0.01
+        elif loan_period <= 24:
+            service_fee = loan_amount * 0.015
+        elif loan_period <= 36:
+            service_fee = loan_amount * 0.02
+        else:
+            service_fee = loan_amount * 0.025
+        
+        loan_data['service_fee'] = service_fee
+        serializer = self.get_serializer(data=loan_data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class PaymentScheduleViewSet(viewsets.ModelViewSet):
     queryset = PaymentSchedule.objects.all()
@@ -141,12 +177,12 @@ class PaymentScheduleViewSet(viewsets.ModelViewSet):
         loan = schedule.loan
         return Response(LoanSerializer(loan).data)
 
-    @action(detail=True, methods=['post'])
-    def mark_as_paid(self, request, pk=None):
-        schedule = self.get_object()
-        schedule.is_paid = True
-        schedule.save()
-        return Response({"status": "Payment schedule marked as paid"}, status=status.HTTP_200_OK)
+    # @action(detail=True, methods=['post'])
+    # def mark_as_paid(self, request, pk=None):
+    #     schedule = self.get_object()
+    #     schedule.is_paid = True
+    #     schedule.save()
+    #     return Response({"status": "Payment schedule marked as paid"}, status=status.HTTP_200_OK)
 
     def get_queryset(self):
         account_number = self.request.query_params.get('account_number')
@@ -155,56 +191,62 @@ class PaymentScheduleViewSet(viewsets.ModelViewSet):
         return self.queryset
 
 
-    @action(detail=True, methods=['post'], url_path='mark-paid')
-    def mark_as_paid(self, request, pk=None):
+    # @action(detail=True, methods=['post'], url_path='mark-paid')
+def mark_as_paid(request, id):
         try:
-            payment_schedule = self.get_object()
+            schedule = PaymentSchedule.objects.get(id=id)
 
-            payment_schedule.is_paid = True
-            payment_schedule.save()
+            schedule.is_paid = True
+            schedule.status = 'Paid'
+            schedule.save()
 
-            return Response({'status': 'Payment marked as paid.'}, status=status.HTTP_200_OK)
+            return JsonResponse({'status': 'Payment marked as paid.'}, status=status.HTTP_200_OK)
         except PaymentSchedule.DoesNotExist:
-            return Response({'error': 'Payment schedule not found.'}, status=status.HTTP_404_NOT_FOUND)
+            return JsonResponse({'error': 'Payment schedule not found.'}, status=status.HTTP_404_NOT_FOUND)
 
     
 class PaymentViewSet(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
 
-    @action(detail=True, methods=['post'])
-    def make_payment(self, request, pk=None):
-        payment_data = request.data
-        try:
-            payment_schedule = PaymentSchedule.objects.get(id=payment_data['payment_schedule'])
-            loan = payment_schedule.loan
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+#     @action(detail=True, methods=['post'])
+#     def make_payment(self, request, pk=None):
+#         payment_data = request.data
+#         try:
+#             payment_schedule = PaymentSchedule.objects.get(id=payment_data['payment_schedule'])
+#             loan = payment_schedule.loan
             
-            payment_amount = Decimal(payment_data['payment_amount'])
-            if payment_amount <= 0:
-                return Response({"error": "Payment amount must be a positive value."}, status=status.HTTP_400_BAD_REQUEST)
+#             payment_amount = Decimal(payment_data['payment_amount'])
+#             if payment_amount <= 0:
+#                 return Response({"error": "Payment amount must be a positive value."}, status=status.HTTP_400_BAD_REQUEST)
 
-            payment = Payment.objects.create(
-                loan=loan,
-                payment_schedule=payment_schedule,
-                payment_amount=payment_amount,
-                payment_date=payment_data.get('payment_date', timezone.now().date()),
-                method=payment_data.get('method', 'Cash')
-            )
+#             payment = Payment.objects.create(
+#                 loan=loan,
+#                 payment_schedule=payment_schedule,
+#                 payment_amount=payment_amount,
+#                 payment_date=payment_data.get('payment_date', timezone.now().date()),
+#                 method=payment_data.get('method', 'Cash')
+#             )
 
-            payment.save()
+#             payment.save()
 
-            return Response({"status": "Payment recorded"}, status=status.HTTP_201_CREATED)
+#             return Response({"status": "Payment recorded"}, status=status.HTTP_201_CREATED)
 
-        except PaymentSchedule.DoesNotExist:
-            return Response({"error": "Payment schedule not found."}, status=status.HTTP_404_NOT_FOUND)
-        except ValidationError as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({"error": f"Error processing payment: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+#         except PaymentSchedule.DoesNotExist:
+#             return Response({"error": "Payment schedule not found."}, status=status.HTTP_404_NOT_FOUND)
+#         except ValidationError as e:
+#             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+#         except Exception as e:
+#             return Response({"error": f"Error processing payment: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 
 class ActiveLoansByAccountView(APIView):
     def get(self, request, account_number):
-        loans = Loan.objects.filter(account_number=account_number)
+        loans = Loan.objects.filter(account__account_number=account_number)
         print(f"Loans found: {loans}")
 
         active_loans_data = []
@@ -230,3 +272,4 @@ class ActiveLoansByAccountView(APIView):
             })
         else:
             return Response({"message": "No active loans found."}, status=status.HTTP_404_NOT_FOUND)
+
